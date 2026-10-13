@@ -16,21 +16,52 @@ function isCollegeEmail(email) {
 }
 
 async function sendOtpEmail(email, code) {
-  if (!process.env.SMTP_HOST) {
-    console.log(`[dev] OTP for ${email}: ${code}`); // no SMTP configured — log instead
+  // Preferred path: Resend, which sends over HTTPS (port 443). This works on
+  // hosts like Render's free tier that block the outbound SMTP ports Gmail needs.
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const resp = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM || 'Trinity Ride <onboarding@resend.dev>',
+          to: email,
+          subject: 'Your Trinity Ride verification code',
+          text: `Your Trinity Ride code is ${code}. It expires in 10 minutes.`,
+        }),
+      });
+      if (!resp.ok) {
+        console.error('Resend failed:', resp.status, await resp.text());
+        console.log(`[fallback] OTP for ${email}: ${code}`); // still visible in logs if the send fails
+      }
+    } catch (err) {
+      console.error('Resend request error:', err);
+      console.log(`[fallback] OTP for ${email}: ${code}`);
+    }
     return;
   }
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-  await transporter.sendMail({
-    from: `"Trinity Ride" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: 'Your Trinity Ride verification code',
-    text: `Your code is ${code}. It expires in 10 minutes.`,
-  });
+
+  // Fallback path: real SMTP (works locally, blocked on hosts like Render free tier).
+  if (process.env.SMTP_HOST) {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+    await transporter.sendMail({
+      from: `"Trinity Ride" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'Your Trinity Ride verification code',
+      text: `Your code is ${code}. It expires in 10 minutes.`,
+    });
+    return;
+  }
+
+  // Nothing configured — log instead, same as before.
+  console.log(`[dev] OTP for ${email}: ${code}`);
 }
 
 // POST /api/auth/register
