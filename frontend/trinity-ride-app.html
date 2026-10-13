@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trinity Ride</title>
+<style>
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent}
+.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+.leaflet-tile::selection{background:transparent}
+.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}
+.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}
+.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer,.leaflet-container .leaflet-tile{max-width:none!important;max-height:none!important;width:auto;padding:0}
+.leaflet-container.leaflet-touch-zoom{touch-action:pan-x pan-y}
+.leaflet-container.leaflet-touch-drag{touch-action:none;touch-action:pinch-zoom}
+.leaflet-tile{filter:inherit;visibility:hidden}
+.leaflet-tile-loaded{visibility:inherit}
+.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}
+.leaflet-overlay-pane svg{-moz-user-select:none}
+.leaflet-pane{z-index:400}
+.leaflet-tile-pane{z-index:200}
+.leaflet-overlay-pane{z-index:400}
+.leaflet-shadow-pane{z-index:500}
+.leaflet-marker-pane{z-index:600}
+.leaflet-tooltip-pane{z-index:650}
+.leaflet-popup-pane{z-index:700}
+.leaflet-map-pane canvas{z-index:100}
+.leaflet-map-pane svg{z-index:200}
+.leaflet-vml-shape{width:1px;height:1px}
+.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}
+.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-control{float:left;clear:both}
+.leaflet-right .leaflet-control{float:right}
+.leaflet-top .leaflet-control{margin-top:10px}
+.leaflet-bottom .leaflet-control{margin-bottom:10px}
+.leaflet-left .leaflet-control{margin-left:10px}
+.leaflet-right .leaflet-control{margin-right:10px}
+.leaflet-control-attribution{background:rgba(255,255,255,.8);margin:0;font-size:10px}
+.leaflet-control-attribution a{text-decoration:none}
+.leaflet-control-attribution a:hover,.leaflet-control-attribution a:focus{text-decoration:underline}
+.leaflet-attribution-flag{display:inline!important;vertical-align:baseline!important;width:1em;height:.6669em}
+.leaflet-bottom .leaflet-control-attribution{margin:0}
+.leaflet-fade-anim .leaflet-popup{opacity:0;transition:opacity .2s linear}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}
+.leaflet-zoom-animated{transform-origin:0 0}
+.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}
+.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}
+.leaflet-popup-content{margin:13px 24px 13px 20px;line-height:1.3;font-size:13px;min-height:1px}
+.leaflet-popup-content p{margin:17px 0}
+.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden;pointer-events:none}
+.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;transform:rotate(45deg)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;box-shadow:0 3px 14px rgba(0,0,0,0.4);color:#222}
+.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;border:none;text-align:center;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;color:#757575;text-decoration:none;background:transparent}
+.leaflet-container a.leaflet-popup-close-button:hover{color:#585858}
+.leaflet-oldie .leaflet-popup-content-wrapper{zoom:1}
+.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive{cursor:move;cursor:grabbing}
+.leaflet-marker-icon,.leaflet-marker-shadow{display:block}
+.leaflet-container{background:#ddd;outline-offset:1px}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#132A3A; --ink-soft:#5C7182; --bg:#F3F5F4; --card:#FFFFFF;
+  --accent:#E4572E; --accent-soft:#FBE3DA; --good:#1E6F5C; --good-soft:#DCEFE9; --line:#DDE3E1;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--ink:#EAEFEE;--ink-soft:#9FB0AC;--bg:#0F1614;--card:#182422;--accent:#FF7A50;--accent-soft:#3A2620;--good:#4FD1AE;--good-soft:#17322A;--line:#2C3835;}
+}
+:root[data-theme="dark"]{--ink:#EAEFEE;--ink-soft:#9FB0AC;--bg:#0F1614;--card:#182422;--accent:#FF7A50;--accent-soft:#3A2620;--good:#4FD1AE;--good-soft:#17322A;--line:#2C3835;}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box;}
+body{height:100%; margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;}
+h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
+#app{max-width:460px; margin:0 auto; min-height:100%; background:var(--bg); display:flex; flex-direction:column;}
+.screen{display:none; flex:1; flex-direction:column; padding:22px 20px calc(24px + env(safe-area-inset-bottom,0px));}
+.screen.active{display:flex;}
+.topbar{display:flex; align-items:center; gap:10px; padding:14px 20px; padding-top:calc(14px + env(safe-area-inset-top,0px)); border-bottom:1px solid var(--line); background:var(--card); position:sticky; top:0; z-index:5;}
+.topbar .logo{width:30px; height:30px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-family:'Fraunces',serif;}
+.topbar span{font-weight:600;}
+label{font-size:0.85rem; color:var(--ink-soft); margin:14px 0 6px; display:block;}
+input, select{width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font-size:0.98rem; font-family:inherit;}
+button{font-family:inherit; cursor:pointer;}
+.btn{width:100%; padding:14px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; font-size:1rem; margin-top:18px;}
+.btn.secondary{background:var(--card); color:var(--ink); border:1px solid var(--line);}
+.btn:disabled{opacity:.5;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px;}
+.hint{color:var(--ink-soft); font-size:0.92rem; margin-top:6px;}
+#map{flex:1; min-height:260px; border-radius:14px; overflow:hidden; border:1px solid var(--line);}
+.mapwrap{display:flex; flex-direction:column; gap:14px; flex:1;}
+.pill{display:inline-block; background:var(--good-soft); color:var(--good); font-weight:600; font-size:0.8rem; padding:3px 10px; border-radius:20px;}
+.driverrow{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
+.driverrow:last-child{border-bottom:none;}
+.avatar{width:38px; height:38px; border-radius:50%; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700; font-family:'Fraunces',serif;}
+#qrbox{background:#fff; padding:18px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin:16px 0;}
+.progress{height:6px; background:var(--line); border-radius:4px; overflow:hidden; margin:16px 0;}
+.progress > div{height:100%; background:var(--good); width:0%; transition:width .4s;}
+.stars{display:flex; gap:8px; font-size:2rem; margin:14px 0;}
+.stars span{cursor:pointer; color:var(--line);}
+.stars span.on{color:#F5B301;}
+.rowbetween{display:flex; justify-content:space-between; align-items:center;}
+.muted{color:var(--ink-soft);}
+.topbar{justify-content:space-between;}
+.topbar-left{display:flex; align-items:center; gap:10px;}
+.iconbtn{width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--ink-soft); display:flex; align-items:center; justify-content:center; font-weight:700;}
+.profile-hero{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+.profile-hero .avatar{width:58px; height:58px; font-size:1.3rem;}
+.field-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line);}
+.field-row:last-child{border-bottom:none;}
+.field-row span:first-child{color:var(--ink-soft); font-size:0.9rem;}
+.stat{flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; text-align:center;}
+.stat strong{display:block; font-size:1.3rem; font-family:'Fraunces',serif;}
+.stat span{font-size:0.78rem; color:var(--ink-soft);}
+.statrow{display:flex; gap:10px; margin-bottom:18px;}
+#bottomnav{display:none; position:fixed; left:0; right:0; bottom:0; max-width:460px; margin:0 auto; background:var(--card); border-top:1px solid var(--line); padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px)); z-index:50;}
+#bottomnav .nav-row{display:flex;}
+.navbtn{flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:var(--ink-soft); font-size:0.72rem; font-weight:600;}
+.navbtn .ic{font-size:1.25rem;}
+.navbtn.on{color:var(--accent);}
+#app{padding-bottom:0;}
+body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
+.screen{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));}
+.screen.has-nav{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px));}
+.pp-row{display:flex; align-items:stretch; gap:10px;}
+.pp-dots{display:flex; flex-direction:column; align-items:center; padding-top:14px; gap:4px;}
+.pp-dots .d1{width:8px; height:8px; border-radius:50%; background:var(--accent);}
+.pp-dots .ln{width:2px; flex:1; background:var(--line); min-height:14px;}
+.pp-dots .d2{width:8px; height:8px; border-radius:2px; background:var(--good);}
+.pp-inputs{flex:1; display:flex; flex-direction:column; gap:8px;}
+.vehrow{display:flex; gap:8px; margin-top:14px;}
+.vehchip{flex:1; border:1px solid var(--line); background:var(--card); border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer;}
+.vehchip .vic{font-size:1.3rem; display:block;}
+.vehchip .vname{font-size:0.78rem; font-weight:600; margin-top:3px; display:block;}
+.vehchip .vfare{font-size:0.72rem; color:var(--ink-soft); display:block;}
+.vehchip.on{border-color:var(--accent); background:var(--accent-soft);}
+.vehchip.on .vfare{color:var(--accent);}
+.tabs{display:flex; gap:6px; margin:14px 0;}
+.tab{flex:1; padding:9px 4px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink-soft); font-weight:600; font-size:0.85rem;}
+.tab.on{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+.ride-item{padding:12px 0; border-bottom:1px solid var(--line);}
+.ride-item:last-child{border-bottom:none;}
+.tag{font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:20px;}
+.tag.done{background:var(--good-soft); color:var(--good);}
+.tag.cancel{background:var(--accent-soft); color:var(--accent);}
+.tag.live{background:#FFF1C9; color:#8A6100;}
+.topbtns{display:flex; gap:8px;}
+.cab{font-size:22px; line-height:30px; text-align:center; filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));}
+.mepin{width:20px; height:20px; border-radius:50%; background:var(--accent); border:3px solid #fff; box-shadow:0 0 0 0 rgba(228,87,46,.6); animation:pulse 1.8s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(228,87,46,.55);}70%{box-shadow:0 0 0 14px rgba(228,87,46,0);}100%{box-shadow:0 0 0 0 rgba(228,87,46,0);}}
+.reqrow{padding:12px 0; border-bottom:1px solid var(--line);}
+.reqrow:last-child{border-bottom:none;}
+.switch{display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
+.swbtn{width:46px; height:26px; border-radius:20px; background:var(--line); position:relative; border:none; cursor:pointer;}
+.swbtn.on{background:var(--good);}
+.swbtn::after{content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:left .2s;}
+.swbtn.on::after{left:23px;}
+.leaflet-container{font-family:'Inter',sans-serif;}
+#suggest{display:none; border:1px solid var(--line); border-radius:10px; background:var(--card); margin-top:6px; max-height:190px; overflow:auto;}
+.sg{padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer; font-size:0.92rem;}
+.sg:last-child{border-bottom:none;}
+.sg small{display:block; color:var(--ink-soft); font-size:0.75rem;}
+#map-confirmed,#map-ride{background:#dfe6e3;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left"><div class="logo">T</div><span>Trinity Ride</span></div>
+  </div>
+
+  <!-- VERIFY -->
+  <div class="screen active" id="s-verify">
+    <h1 style="font-size:1.6rem; margin-bottom:6px;">Verify your college ID</h1>
+    <p class="hint">Rides are open to Trinity Academy College of Engineering students only.</p>
+    <label>Full name</label>
+    <input id="v-name" placeholder="e.g. Aditi Sharma">
+    <label>College email</label>
+    <input id="v-email" placeholder="yourname@trinityacademy.edu.in">
+    <label>ID card number</label>
+    <input id="v-id" placeholder="e.g. TACE2026CS118">
+    <label>Branch &amp; year</label>
+    <input id="v-branch" placeholder="e.g. Computer Engineering, TY">
+    <label>Password</label>
+    <input id="v-pass" type="password" placeholder="Create a password">
+    <button class="btn" id="v-submit">Create account</button>
+    <p class="hint" id="v-error" style="color:var(--accent); display:none;"></p>
+    <p class="hint" id="v-api-status"></p>
+    <p class="hint" style="text-align:center; margin-top:14px;">Already have an account? <a href="#" id="show-login" style="color:var(--accent); font-weight:600; text-decoration:none;">Log in</a></p>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="screen" id="s-login">
+    <h1 style="font-size:1.6rem; margin-bottom:6px;">Log in</h1>
+    <p class="hint">Welcome back — enter your college email and password.</p>
+    <label>College email</label>
+    <input id="l-email" placeholder="yourname@trinityacademy.edu.in">
+    <label>Password</label>
+    <input id="l-pass" type="password" placeholder="Your password">
+    <button class="btn" id="l-submit">Log in</button>
+    <p class="hint" id="l-error" style="color:var(--accent); display:none;"></p>
+    <p class="hint" style="text-align:center; margin-top:10px;"><a href="#" id="show-forgot" style="color:var(--ink-soft); text-decoration:none;">Forgot password?</a></p>
+    <p class="hint" style="text-align:center; margin-top:6px;">New here? <a href="#" id="show-signup" style="color:var(--accent); font-weight:600; text-decoration:none;">Create an account</a></p>
+  </div>
+
+  <!-- FORGOT PASSWORD: step 1 -->
+  <div class="screen" id="s-forgot">
+    <h1 style="font-size:1.6rem; margin-bottom:6px;">Reset your password</h1>
+    <p class="hint">Enter your college email and we'll send a reset code.</p>
+    <label>College email</label>
+    <input id="fp-email" placeholder="yourname@trinityacademy.edu.in">
+    <button class="btn" id="fp-submit">Send reset code</button>
+    <p class="hint" id="fp-error" style="color:var(--accent); display:none;"></p>
+    <p class="hint" style="text-align:center; margin-top:14px;"><a href="#" id="fp-back-login" style="color:var(--accent); font-weight:600; text-decoration:none;">Back to log in</a></p>
+  </div>
+
+  <!-- FORGOT PASSWORD: step 2 -->
+  <div class="screen" id="s-reset">
+    <h1 style="font-size:1.6rem; margin-bottom:6px;">Enter the code</h1>
+    <p class="hint">Check your college email for a 6-digit code. If the server has no email set up, check the backend's terminal window instead.</p>
+    <label>Reset code</label>
+    <input id="rs-code" inputmode="numeric" maxlength="6" placeholder="123456">
+    <label>New password</label>
+    <input id="rs-pass" type="password" placeholder="Choose a new password">
+    <button class="btn" id="rs-submit">Reset password</button>
+    <p class="hint" id="rs-error" style="color:var(--accent); display:none;"></p>
+  </div>
+
+  <!-- OTP -->
+  <div class="screen" id="s-otp">
+    <h1 style="font-size:1.6rem; margin-bottom:6px;">Enter your code</h1>
+    <p class="hint">A 6-digit code was sent to your college email. If the server has no email set up, check the backend's terminal window — it prints the code there instead.</p>
+    <label>Verification code</label>
+    <input id="otp-code" inputmode="numeric" maxlength="6" placeholder="123456">
+    <button class="btn" id="otp-submit">Verify &amp; continue</button>
+    <p class="hint" id="otp-error" style="color:var(--accent); display:none;"></p>
+  </div>
+
+  <!-- HOME / MAP -->
+  <div class="screen has-nav" id="s-home">
+    <div class="mapwrap">
+      <div class="rowbetween">
+        <div>
+          <div class="muted" style="font-size:0.85rem;">Riding as</div>
+          <strong id="home-name">—</strong>
+        </div>
+        <span class="pill">ID verified</span>
+      </div>
+      <div class="card">
+        <div class="rowbetween" style="margin-bottom:10px;"><span class="hint" id="loc-msg" style="margin:0;">Locating you…</span><button class="tab" id="locate" style="flex:none; padding:6px 12px;">📍 Use my location</button></div>
+        <div class="pp-row">
+          <div class="pp-dots"><div class="d1"></div><div class="ln"></div><div class="d2"></div></div>
+          <div class="pp-inputs">
+            <div style="position:relative;">
+              <input id="pickup-in" autocomplete="off" placeholder="Pickup location">
+              <div id="suggest-pickup" style="position:absolute; left:0; right:0; z-index:20;"></div>
+            </div>
+            <div style="position:relative;">
+              <input id="dest" autocomplete="off" placeholder="Where to?">
+              <div id="suggest" style="position:absolute; left:0; right:0; z-index:20;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="vehrow">
+          <div class="vehchip on" data-v="bike"><span class="vic">🏍️</span><span class="vname">Bike</span><span class="vfare" id="vf-bike">—</span></div>
+          <div class="vehchip" data-v="auto"><span class="vic">🛺</span><span class="vname">Auto</span><span class="vfare" id="vf-auto">—</span></div>
+          <div class="vehchip" data-v="car"><span class="vic">🚗</span><span class="vname">Car</span><span class="vfare" id="vf-car">—</span></div>
+        </div>
+        <button class="btn" id="find-ride">Find a ride</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="screen has-nav" id="s-profile">
+    <div class="profile-hero">
+      <div class="avatar" id="p-avatar">—</div>
+      <div>
+        <h2 style="font-size:1.3rem;" id="p-name">—</h2>
+        <span class="pill">ID verified</span>
+      </div>
+    </div>
+    <div class="statrow">
+      <div class="stat"><strong id="p-rides">0</strong><span>Rides taken</span></div>
+      <div class="stat"><strong id="p-saved">₹0</strong><span>Saved vs. market</span></div>
+    </div>
+    <div class="card">
+      <div class="field-row"><span>College email</span><span id="p-email">—</span></div>
+      <div class="field-row"><span>ID card number</span><span id="p-id">—</span></div>
+      <div class="field-row"><span>Branch &amp; year</span><span id="p-branch">—</span></div>
+    </div>
+    <button class="btn secondary" id="p-back">Back to map</button>
+    <button class="btn" id="p-logout" style="background:var(--card); color:var(--accent); border:1px solid var(--accent);">Log out</button>
+  </div>
+
+  <!-- MY RIDES -->
+  <div class="screen has-nav" id="s-rides">
+    <h2 style="font-size:1.4rem;">My rides</h2>
+    <div class="tabs">
+      <button class="tab on" data-t="current">Current</button>
+      <button class="tab" data-t="completed">Completed</button>
+      <button class="tab" data-t="cancelled">Cancelled</button>
+    </div>
+    <div class="card" id="rides-list"></div>
+    <button class="btn secondary" id="r-back">Back to map</button>
+  </div>
+
+  <!-- DRIVER -->
+  <div class="screen has-nav" id="s-driver">
+    <h2 style="font-size:1.4rem;">Drive &amp; earn</h2>
+    <p class="hint">Register your vehicle once, then go online to see ride requests from students nearby.</p>
+
+    <div class="card" id="vehicle-form" style="margin-top:14px;">
+      <label style="margin-top:0;">Vehicle type</label>
+      <select id="veh-type"><option>Bike</option><option>Auto</option><option>Car</option></select>
+      <label>Registration number</label>
+      <input id="veh-reg" placeholder="e.g. MH12 AB 1234">
+      <label>Model</label>
+      <input id="veh-model" placeholder="e.g. Honda Activa">
+      <button class="btn" id="veh-save">Save vehicle</button>
+    </div>
+
+    <div id="driver-online" style="display:none;">
+      <div class="switch" style="margin-top:14px;">
+        <div><strong id="veh-summary"></strong><div class="muted" style="font-size:0.85rem;">You're set up to drive</div></div>
+        <button class="swbtn" id="online-toggle"></button>
+      </div>
+      <div class="statrow" style="margin-top:14px;">
+        <div class="stat"><strong id="d-rides">0</strong><span>Rides given</span></div>
+        <div class="stat"><strong id="d-earn">₹0</strong><span>Earned</span></div>
+      </div>
+      <div class="card" id="requests-wrap" style="display:none;">
+        <div class="rowbetween"><strong>Nearby requests</strong><span class="pill">Live</span></div>
+        <div id="req-list"></div>
+      </div>
+    </div>
+    <button class="btn secondary" id="driver-back">Back to map</button>
+  </div>
+
+  <!-- DRIVER: ACTIVE RIDE -->
+  <div class="screen" id="s-driver-ride">
+    <h2 style="font-size:1.4rem;">Picking up rider</h2>
+    <div class="card" style="margin-top:14px;" id="pickup-rider-card"></div>
+    <p class="hint">Ask the rider to show their QR code, then scan it to start.</p>
+    <button class="btn" id="dr-scan">Simulate: scan rider's QR</button>
+    <div style="display:none;" id="dr-progress-wrap">
+      <div class="progress" style="margin-top:18px;"><div id="dr-bar"></div></div>
+      <p class="muted" id="dr-status">Ride in progress…</p>
+      <button class="btn" id="dr-end">Simulate: end ride</button>
+    </div>
+  </div>
+
+  <!-- MATCH -->
+  <div class="screen" id="s-match">
+    <h2 style="font-size:1.4rem;">Finding you a driver</h2>
+    <p class="hint" id="fare-line"></p>
+    <div class="card" style="margin-top:14px; text-align:center; padding:28px 18px;">
+      <div style="font-size:2rem;">🔎</div>
+      <p class="muted" id="waiting-msg" style="margin-top:10px;">Waiting for a nearby student driver to accept your request…</p>
+    </div>
+    <button class="btn secondary" id="back-home">Cancel search</button>
+  </div>
+
+  <!-- CONFIRMED -->
+  <div class="screen" id="s-confirmed">
+    <h2 style="font-size:1.4rem;">Driver on the way</h2>
+    <div class="card" style="margin-top:14px;">
+      <div class="driverrow" id="confirmed-driver"></div>
+      <p class="muted" style="margin:10px 0 0;">Show your code to start the ride when they arrive.</p>
+    </div>
+    <div id="map-confirmed" style="height:220px; border-radius:14px; border:1px solid var(--line); margin:14px 0;"></div>
+    <div id="qrbox"></div>
+    <button class="btn" id="scan-start">Simulate: driver scans my code</button>
+    <select id="cancel-reason" style="margin-top:14px;"><option>Changed plans</option><option>Driver taking too long</option><option>Booked by mistake</option><option>Found another ride</option></select>
+    <button class="btn secondary" id="cancel-ride" style="margin-top:10px;">Cancel ride</button>
+  </div>
+
+  <!-- IN PROGRESS -->
+  <div class="screen" id="s-ride">
+    <h2 style="font-size:1.4rem;">Ride in progress</h2>
+    <div id="map-ride" style="height:200px; border-radius:14px; border:1px solid var(--line); margin:14px 0;"></div>
+    <div class="progress"><div id="ride-bar"></div></div>
+    <p class="muted" id="ride-status">Heading to your destination…</p>
+    <button class="btn" id="end-ride">Simulate: end ride</button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div id="bottomnav">
+    <div class="nav-row">
+      <button class="navbtn on" id="nav-home"><span class="ic">🏠</span>Home</button>
+      <button class="navbtn" id="nav-rides"><span class="ic">🕘</span>Rides</button>
+      <button class="navbtn" id="nav-driver"><span class="ic">🚖</span>Drive</button>
+      <button class="navbtn" id="nav-profile"><span class="ic">👤</span>Profile</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="screen" id="s-summary">
+    <h2 style="font-size:1.4rem;">Trip complete</h2>
+    <div class="card" style="margin-top:14px;">
+      <div class="rowbetween"><span class="muted">Fare paid</span><strong id="sum-fare"></strong></div>
+      <div class="rowbetween" style="margin-top:8px;"><span class="muted">Saved vs. market rate</span><strong id="sum-save" style="color:var(--good);"></strong></div>
+    </div>
+    <p class="hint">Rate your driver</p>
+    <div class="stars" id="stars">
+      <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+    </div>
+    <button class="btn" id="new-ride">Book another ride</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const TRINITY = [18.4400, 73.8850]; // Yewalewadi, Pune — approx campus location
+const state = { user:null, dest:null, distanceKm:0, fare:0, driver:null, ridesTaken:0, totalSaved:0, rides:[], current:null, vehicle:null, online:false, driverEarnings:0, driverRides:0, vehType:'bike' };
+const VEH_MULT={bike:0.7, auto:1, car:1.5};
+
+function loadSavedUser(){
+  try{
+    const raw = localStorage.getItem('trinityride_user');
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+// History (rides taken, savings, driver earnings) is saved per account email,
+// separately from the active session — so it survives logout and comes back
+// on the next login for the same account, instead of being wiped every time.
+function historyKey(email){ return 'trinityride_history:'+email; }
+function saveHistory(){
+  if(!state.user || !state.user.email) return;
+  try{
+    localStorage.setItem(historyKey(state.user.email), JSON.stringify({
+      rides:state.rides, ridesTaken:state.ridesTaken, totalSaved:state.totalSaved,
+      vehicle:state.vehicle, driverEarnings:state.driverEarnings, driverRides:state.driverRides
+    }));
+  }catch(e){}
+}
+function loadHistory(email){
+  try{ const raw=localStorage.getItem(historyKey(email)); return raw?JSON.parse(raw):null; }catch(e){ return null; }
+}
+function saveUser(){
+  saveHistory();
+  try{ localStorage.setItem('trinityride_user', JSON.stringify(state)); }catch(e){}
+}
+const PUNE_BOUNDS=[[18.35,73.62],[18.75,74.08]];
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active'); if(id==='s-home'&&window.map) setTimeout(()=>map.invalidateSize(),150);}
+
+// ---- Real backend connection ----
+// Change this if your backend runs somewhere other than localhost:4000.
+const API_BASE='http://localhost:4000/api';
+async function api(path, options={}){
+  const headers={'Content-Type':'application/json', ...(options.headers||{})};
+  if(state.token) headers['Authorization']='Bearer '+state.token;
+  const res=await fetch(API_BASE+path, {...options, headers});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || ('Request failed ('+res.status+')'));
+  return data;
+}
+
+let pendingSignup=null; // held between register → OTP screens
+
+document.getElementById('v-submit').onclick = async () => {
+  const errEl=document.getElementById('v-error'), statusEl=document.getElementById('v-api-status');
+  errEl.style.display='none'; statusEl.textContent='';
+  const full_name=document.getElementById('v-name').value.trim();
+  const college_email=document.getElementById('v-email').value.trim();
+  const id_card_number=document.getElementById('v-id').value.trim();
+  const branch=document.getElementById('v-branch').value.trim();
+  const password=document.getElementById('v-pass').value;
+  if(!full_name||!college_email||!id_card_number||!password){
+    errEl.textContent='Please fill in name, email, ID card number and a password.'; errEl.style.display='block'; return;
+  }
+  statusEl.textContent='Creating your account…';
+  try{
+    await api('/auth/register', {method:'POST', body:JSON.stringify({full_name,college_email,id_card_number,branch,password})});
+    pendingSignup={college_email};
+    statusEl.textContent='';
+    show('s-otp');
+  }catch(e){
+    if(/already exists/i.test(e.message)){
+      statusEl.textContent='';
+      document.getElementById('l-email').value=college_email;
+      show('s-login');
+      document.getElementById('l-error').textContent='This account already exists — log in below instead.';
+      document.getElementById('l-error').style.display='block';
+      return;
+    }
+    statusEl.textContent='';
+    errEl.textContent='Could not reach the backend: '+e.message+'. Make sure "npm run dev" is running in the backend folder on port 4000.';
+    errEl.style.display='block';
+  }
+};
+
+document.getElementById('otp-submit').onclick = async () => {
+  const errEl=document.getElementById('otp-error');
+  errEl.style.display='none';
+  const code=document.getElementById('otp-code').value.trim();
+  if(!pendingSignup || !code) return;
+  try{
+    const r=await api('/auth/verify-otp', {method:'POST', body:JSON.stringify({college_email:pendingSignup.college_email, code})});
+    state.token=r.token;
+    state.user={
+      name:r.user.full_name, email:r.user.college_email,
+      id:document.getElementById('v-id').value.trim(),
+      branch:document.getElementById('v-branch').value.trim(),
+      dbId:r.user.id
+    };
+    enterApp();
+  }catch(e){
+    errEl.textContent=e.message; errEl.style.display='block';
+  }
+};
+
+document.getElementById('show-login').onclick=(e)=>{ e.preventDefault(); show('s-login'); };
+document.getElementById('show-signup').onclick=(e)=>{ e.preventDefault(); show('s-verify'); };
+document.getElementById('show-forgot').onclick=(e)=>{ e.preventDefault(); show('s-forgot'); };
+document.getElementById('fp-back-login').onclick=(e)=>{ e.preventDefault(); show('s-login'); };
+
+let resetEmail=null;
+document.getElementById('fp-submit').onclick = async () => {
+  const errEl=document.getElementById('fp-error'); errEl.style.display='none';
+  const email=document.getElementById('fp-email').value.trim();
+  if(!email){ errEl.textContent='Enter your college email.'; errEl.style.display='block'; return; }
+  try{
+    await api('/auth/forgot-password',{method:'POST', body:JSON.stringify({college_email:email})});
+    resetEmail=email;
+    show('s-reset');
+  }catch(e){
+    errEl.textContent=e.message; errEl.style.display='block';
+  }
+};
+
+document.getElementById('rs-submit').onclick = async () => {
+  const errEl=document.getElementById('rs-error'); errEl.style.display='none';
+  const code=document.getElementById('rs-code').value.trim();
+  const new_password=document.getElementById('rs-pass').value;
+  if(!code||!new_password){ errEl.textContent='Enter the code and a new password.'; errEl.style.display='block'; return; }
+  try{
+    await api('/auth/reset-password',{method:'POST', body:JSON.stringify({college_email:resetEmail, code, new_password})});
+    document.getElementById('l-email').value=resetEmail;
+    document.getElementById('l-error').textContent='Password updated — log in with your new password.';
+    document.getElementById('l-error').style.display='block';
+    show('s-login');
+  }catch(e){
+    errEl.textContent=e.message; errEl.style.display='block';
+  }
+};
+
+document.getElementById('l-submit').onclick = async () => {
+  const errEl=document.getElementById('l-error');
+  errEl.style.display='none';
+  const college_email=document.getElementById('l-email').value.trim();
+  const password=document.getElementById('l-pass').value;
+  if(!college_email||!password){ errEl.textContent='Enter your email and password.'; errEl.style.display='block'; return; }
+  try{
+    const r=await api('/auth/login', {method:'POST', body:JSON.stringify({college_email, password})});
+    state.token=r.token;
+    state.user={name:r.user.full_name, email:r.user.college_email, id:r.user.id_card_number||'', branch:r.user.branch||'', dbId:r.user.id};
+    enterApp();
+  }catch(e){
+    errEl.textContent=e.message; errEl.style.display='block';
+  }
+};
+
+function enterApp(){
+  document.getElementById('home-name').textContent=state.user.name;
+  document.getElementById('bottomnav').style.display='block';
+  document.body.classList.add('logged-in');
+  const h=loadHistory(state.user.email);
+  if(h){
+    state.rides=h.rides||[]; state.ridesTaken=h.ridesTaken||0; state.totalSaved=h.totalSaved||0;
+    state.vehicle=h.vehicle||null; state.driverEarnings=h.driverEarnings||0; state.driverRides=h.driverRides||0;
+  } else {
+    state.rides=state.rides||[];
+  }
+  saveUser();
+  show('s-home');
+  setTimeout(initLocation,50);
+}
+
+function renderProfile(){
+  const u=state.user;
+  document.getElementById('p-avatar').textContent=u.name[0].toUpperCase();
+  document.getElementById('p-name').textContent=u.name;
+  document.getElementById('p-email').textContent=u.email;
+  document.getElementById('p-id').textContent=u.id;
+  document.getElementById('p-branch').textContent=u.branch||'—';
+  document.getElementById('p-rides').textContent=state.ridesTaken;
+  document.getElementById('p-saved').textContent='₹'+state.totalSaved;
+}
+function setNav(id){document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('on',b.id===id));}
+document.getElementById('nav-home').onclick=()=>{ setNav('nav-home'); show('s-home'); };
+document.getElementById('nav-profile').onclick=()=>{ setNav('nav-profile'); renderProfile(); show('s-profile'); };
+document.getElementById('p-back').onclick=()=>{ setNav('nav-home'); show('s-home'); };
+document.getElementById('p-logout').onclick=()=>{
+  saveHistory(); // make sure this account's history is saved before the session clears
+  try{ localStorage.removeItem('trinityride_user'); }catch(e){}
+  state.user=null; state.token=null; state.ridesTaken=0; state.totalSaved=0;
+  document.getElementById('bottomnav').style.display='none'; document.body.classList.remove('logged-in'); state.rides=[]; state.current=null; state.vehicle=null; state.online=false;
+  document.getElementById('v-name').value=''; document.getElementById('v-email').value='';
+  document.getElementById('v-id').value=''; document.getElementById('v-branch').value=''; document.getElementById('v-pass').value='';
+  show('s-verify');
+};
+
+// Resume a saved session on refresh
+const saved=loadSavedUser();
+if(saved && saved.user){
+  Object.assign(state, saved);
+  setTimeout(enterApp,0);
+}
+
+// Several free tile sources, tried in order. If one is blocked or too slow on
+// the viewer's network, the app automatically falls back to the next.
+/* =====================================================================
+   MAP ENGINE — OpenStreetMap via Leaflet.js. 100% free, NO API KEY,
+   NO account, NO billing anywhere in this file. If any page or tool
+   claims this app needs a "map API key", that message is not coming
+   from this code — check for another tab/app open on your device.
+   ===================================================================== */
+// CARTO's basemaps now require a paid API key, so it's deliberately NOT in this
+// list — every source below is genuinely free with no key, no account, no billing.
+const TILE_SOURCES=[
+  {url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',opts:{attribution:'© OpenStreetMap contributors',subdomains:'abc',maxZoom:19}},
+  {url:'https://tile.openstreetmap.de/{z}/{x}/{y}.png',opts:{attribution:'© OpenStreetMap contributors',maxZoom:19}},
+  {url:'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',opts:{attribution:'© OpenStreetMap contributors, Wikimedia',maxZoom:19}},
+];
+function addTilesWithFallback(targetMap, mapElId){
+  let i=0, settled=false;
+  function tryNext(){
+    if(i>=TILE_SOURCES.length){
+      // Every source failed with no load event at all — almost always means the
+      // page is open inside an in-app browser (WhatsApp/Telegram/file-preview)
+      // that silently blocks third-party images, not a problem with the map code.
+      const el=document.getElementById(mapElId);
+      if(el && !settled){
+        const warn=document.createElement('div');
+        warn.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:0.85rem;color:#5C7182;background:#F3F5F4;z-index:1000;';
+        warn.textContent='Map images are blocked here. Open this file directly in Chrome or Firefox (not an in-app browser) for the map to load.';
+        el.style.position='relative'; el.appendChild(warn);
+      }
+      return;
+    }
+    const src=TILE_SOURCES[i++];
+    const layer=L.tileLayer(src.url,src.opts).addTo(targetMap);
+    let gotTile=false;
+    layer.on('tileload',()=>{ gotTile=true; settled=true; }); // a real tile image actually arrived
+    // Hard timeout, independent of any error event — covers requests that hang
+    // forever with no error at all, which is what a blocked in-app browser looks like.
+    setTimeout(()=>{
+      if(!gotTile){ targetMap.removeLayer(layer); tryNext(); }
+    },2500);
+  }
+  tryNext();
+}
+// Built-in Pune places so search works even without internet
+const PLACES=[
+["Trinity Academy of Engineering, Yewalewadi",18.4400,73.8850],["Swargate",18.5018,73.8636],["Pune Railway Station",18.5289,73.8744],
+["Shivajinagar",18.5308,73.8475],["Deccan Gymkhana",18.5167,73.8409],["FC Road (Fergusson College)",18.5236,73.8410],
+["Camp / MG Road",18.5163,73.8786],["Kondhwa",18.4629,73.8960],["NIBM Road",18.4794,73.8990],["Hadapsar",18.5089,73.9259],
+["Katraj",18.4575,73.8677],["Bibwewadi",18.4750,73.8630],["Kothrud",18.5074,73.8077],["Hinjewadi",18.5912,73.7389],
+["Baner",18.5590,73.7868],["Aundh",18.5580,73.8075],["Viman Nagar",18.5679,73.9143],["Kharadi",18.5511,73.9474],
+["Koregaon Park",18.5362,73.8940],["Magarpatta City",18.5158,73.9272],["Wakad",18.5975,73.7600],["Pimpri",18.6279,73.8009],
+["Chinchwad",18.6448,73.7970],["Pune Airport",18.5822,73.9197],["Shaniwar Wada",18.5195,73.8553],["Dagdusheth Ganpati Temple",18.5164,73.8562],
+["Sinhagad Road",18.4890,73.8230],["Wanowrie",18.4946,73.8967],["Kalyani Nagar",18.5464,73.9033],["Yerwada",18.5535,73.8850],
+["Balewadi",18.5720,73.7790],["Pashan",18.5387,73.7930],["Warje",18.4826,73.8000],["Undri",18.4590,73.9130],
+["Market Yard",18.4900,73.8700],["Savitribai Phule Pune University",18.5525,73.8245],["COEP Pune",18.5293,73.8566],
+["Bhosari",18.6298,73.8467],["Dhankawadi",18.4680,73.8580],["Pune Station Bus Stand (PMPML)",18.5285,73.8740]];
+
+// Approximate PMPML ordinary-bus stage fares (₹) by distance in km.
+// EDIT these to match the official chart from pmpml.org before presenting.
+const PMPML_STAGES=[[2,5],[4,10],[6,15],[8,20],[10,25],[15,30],[20,35],[Infinity,40]];
+const FARE_MARKUP=0.9; // +90% on top of the PMPML-style stage fare
+function pmpmlFare(km){for(const [d,f] of PMPML_STAGES) if(km<=d) return Math.round(f*(1+FARE_MARKUP));}
+function hav(a,b){const R=6371,r=x=>x*Math.PI/180;const dLa=r(b[0]-a[0]),dLo=r(b[1]-a[1]);
+  const h=Math.sin(dLa/2)**2+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function dot(pos,color,label){return L.circleMarker(pos,{radius:9,color:'#fff',weight:3,fillColor:color,fillOpacity:1}).bindPopup(label);}
+
+let confirmMap, destMarker, routeLine, meAccuracy, driverMarkers=[], watchId=null;
+function inPune(p){return p[0]>=PUNE_BOUNDS[0][0]&&p[0]<=PUNE_BOUNDS[1][0]&&p[1]>=PUNE_BOUNDS[0][1]&&p[1]<=PUNE_BOUNDS[1][1];}
+function driverIcon(){return L.divIcon({className:'',html:'<div class="cab">🚗</div>',iconSize:[30,30],iconAnchor:[15,15]});}
+function meIcon(){return L.divIcon({className:'',html:'<div class="mepin"></div>',iconSize:[20,20],iconAnchor:[10,10]});}
+
+// Home no longer shows a map — just location tracking in the background so
+// Pickup starts pre-filled. The actual map only appears once a ride is confirmed.
+function initLocation(){
+  state.pickup=(state.pickup&&inPune(state.pickup))?state.pickup:TRINITY;
+  const pIn=document.getElementById('pickup-in'); if(pIn && !pIn.value) pIn.value='Trinity Academy (campus)';
+  locateMe();
+}
+async function reverseGeocode(lat,lng){
+  try{
+    const ctl=new AbortController(); setTimeout(()=>ctl.abort(),5000);
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,{signal:ctl.signal});
+    const j=await r.json();
+    const a=j.address||{};
+    // Build the specific local part first (street/landmark, then neighbourhood, then city) —
+    // display_name alone is often too long and buries the exact spot.
+    const specific=[a.road||a.neighbourhood||a.suburb, a.suburb||a.city_district, a.city||a.town||a.village]
+      .filter((v,i,arr)=>v && arr.indexOf(v)===i).join(', ');
+    return specific || j.display_name || null;
+  }catch(e){ return null; }
+}
+function onFix(pos){
+  const msg=document.getElementById('loc-msg');
+  const p=[pos.coords.latitude,pos.coords.longitude];
+  const acc=pos.coords.accuracy; // metres — how exact this fix actually is
+  if(!inPune(p)){ msg.textContent='Your exact location is outside Pune — using Trinity campus as pickup.'; return; }
+  state.pickup=p;
+  const pIn=document.getElementById('pickup-in');
+  if(pIn && (pIn.value===''||pIn.value==='Trinity Academy (campus)'||pIn.value==='Current location')) pIn.value='Current location';
+  msg.textContent=`Live GPS fix — accurate to ±${Math.round(acc)} m.`;
+  reverseGeocode(p[0],p[1]).then(addr=>{ if(addr && pIn && pIn.value==='Current location') pIn.value=addr; });
+  if(state.destCoords){ state.routeLatLngs=null; drawRoute(); }
+}
+function locateMe(){
+  const msg=document.getElementById('loc-msg');
+  if(location.protocol==='file:'){
+    msg.textContent='Opened as a local file, so the browser blocks real GPS here — using Trinity campus as pickup.';
+    return;
+  }
+  if(!navigator.geolocation){msg.textContent='Location unavailable on this device — using Trinity campus as pickup.';return;}
+  msg.textContent='Finding your exact location…';
+  if(watchId!==null) navigator.geolocation.clearWatch(watchId);
+  watchId=navigator.geolocation.watchPosition(onFix,
+    ()=>{msg.textContent='Location permission denied — using Trinity campus as pickup. Tap to retry.';},
+    {enableHighAccuracy:true,maximumAge:5000,timeout:10000});
+}
+document.getElementById('locate').onclick=()=>locateMe();
+
+// ---- Pickup + destination search, shared autocomplete logic ----
+const destInput=document.getElementById('dest'), sugBox=document.getElementById('suggest');
+const pickInput=document.getElementById('pickup-in'), pickSugBox=document.getElementById('suggest-pickup');
+
+function byDistance(items){
+  const from=state.pickup||TRINITY;
+  return items.slice().sort((a,b)=>hav(from,[a.lat,a.lng])-hav(from,[b.lat,b.lng]));
+}
+async function drawRoute(){
+  // Pure calculation only — home has no map to draw into. The actual route
+  // line is drawn later, once a ride is confirmed (see renderConfirmedMap).
+  const a=state.pickup||TRINITY,b=state.destCoords; if(!b) return;
+  let pts=[a,b], km=+(hav(a,b)*1.3).toFixed(1);
+  try{
+    const ctl=new AbortController(); setTimeout(()=>ctl.abort(),4000);
+    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`,{signal:ctl.signal});
+    const j=await r.json();
+    if(j.routes&&j.routes[0]){pts=j.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]); km=+(j.routes[0].distance/1000).toFixed(1);}
+  }catch(e){}
+  state.routeLatLngs=pts; state.distanceKm=Math.max(km,0.5);
+  updateFarePreview();
+}
+function setDestination(name,lat,lng){
+  state.dest=name; state.destCoords=[lat,lng]; destInput.value=name; sugBox.style.display='none';
+  drawRoute();
+}
+function setPickupPoint(name,lat,lng){
+  state.pickup=[lat,lng]; pickInput.value=name; pickSugBox.style.display='none';
+  document.getElementById('loc-msg').textContent='Pickup set manually.';
+  if(state.destCoords){ state.routeLatLngs=null; drawRoute(); }
+}
+// Draws the actual map — only called once a ride is confirmed, into #map-confirmed.
+function renderConfirmedMap(){
+  const el=document.getElementById('map-confirmed');
+  if(confirmMap){ confirmMap.remove(); confirmMap=null; }
+  const pickup=state.pickup||TRINITY, drop=state.destCoords;
+  confirmMap=L.map('map-confirmed',{minZoom:11,maxBounds:PUNE_BOUNDS,maxBoundsViscosity:0.9}).setView(pickup,14);
+  addTilesWithFallback(confirmMap,'map-confirmed');
+  dot(pickup,'#E4572E','Pickup').addTo(confirmMap);
+  if(drop){
+    dot(drop,'#132A3A',state.dest||'Drop').addTo(confirmMap);
+    const pts=state.routeLatLngs||[pickup,drop];
+    const line=L.polyline(pts,{color:'#E4572E',weight:5,opacity:.9}).addTo(confirmMap);
+    confirmMap.fitBounds(line.getBounds(),{padding:[30,30]});
+  }
+  if(state.current && state.current.driver){
+    const dpos=[pickup[0]+(Math.random()-.5)*0.01, pickup[1]+(Math.random()-.5)*0.01];
+    L.marker(dpos,{icon:driverIcon()}).addTo(confirmMap).bindPopup(state.current.driver+' is on the way');
+  }
+  setTimeout(()=>confirmMap&&confirmMap.invalidateSize(),200);
+}
+function makeSuggestHandler(box, onPick){
+  return (items)=>{
+    box.innerHTML='';
+    if(!items.length){box.style.display='none';return;}
+    items.slice(0,6).forEach(it=>{
+      const d=document.createElement('div'); d.className='sg'; d.textContent=it.name.split(',')[0];
+      if(it.name.includes(',')){const sm=document.createElement('small'); sm.textContent=it.name.split(',').slice(1,3).join(','); d.appendChild(sm);}
+      d.onclick=()=>onPick(it.name.split(',')[0],it.lat,it.lng);
+      box.appendChild(d);
+    });
+    box.style.display='block';
+  };
+}
+let sugTimer, pickTimer;
+function wireAutocomplete(inputEl, boxEl, render, timerRef){
+  inputEl.addEventListener('input',()=>{
+    if(inputEl===destInput) state.destCoords=null;
+    const q=inputEl.value.trim().toLowerCase();
+    if(q.length<2){boxEl.style.display='none';return;}
+    const local=byDistance(PLACES.filter(p=>p[0].toLowerCase().includes(q)).map(p=>({name:p[0],lat:p[1],lng:p[2]})));
+    render(local);
+    clearTimeout(timerRef.id);
+    timerRef.id=setTimeout(async()=>{
+      try{
+        const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=in&bounded=1&viewbox=73.78,18.56,73.95,18.43&addressdetails=1&q='+encodeURIComponent(q+' Pune'));
+        const j=await r.json();
+        const online=j.map(x=>{
+          const a=x.address||{};
+          const short=[a.road||a.neighbourhood||a.suburb, a.suburb, a.city||a.town].filter((v,i,arr)=>v&&arr.indexOf(v)===i).join(', ')||x.display_name;
+          return {name:short,lat:+x.lat,lng:+x.lon};
+        });
+        if(inputEl.value.trim().toLowerCase()===q) render(byDistance(local.concat(online)));
+      }catch(e){}
+    },350);
+  });
+}
+const sugTimerRef={id:null}, pickTimerRef={id:null};
+wireAutocomplete(destInput, sugBox, makeSuggestHandler(sugBox,setDestination), sugTimerRef);
+wireAutocomplete(pickInput, pickSugBox, makeSuggestHandler(pickSugBox,setPickupPoint), pickTimerRef);
+
+// ---- Vehicle type selection + live fare preview ----
+function updateFarePreview(){
+  if(!state.distanceKm){ ['bike','auto','car'].forEach(v=>document.getElementById('vf-'+v).textContent='—'); return; }
+  const base=pmpmlFare(state.distanceKm);
+  ['bike','auto','car'].forEach(v=>document.getElementById('vf-'+v).textContent='₹'+Math.round(base*VEH_MULT[v]));
+}
+document.querySelectorAll('.vehchip').forEach(c=>c.onclick=()=>{
+  state.vehType=c.dataset.v;
+  document.querySelectorAll('.vehchip').forEach(x=>x.classList.toggle('on',x===c));
+});
+
+document.getElementById('find-ride').onclick = async () => {
+  const typed=destInput.value.trim();
+  if(!typed) return;
+  if(!state.destCoords){
+    const hit=PLACES.find(p=>p[0].toLowerCase().includes(typed.toLowerCase()));
+    if(hit) setDestination(hit[0],hit[1],hit[2]);
+    else { alert('Please pick a destination from the suggestions list.'); return; }
+  }
+  if(!state.routeLatLngs) await drawRoute();
+  const dest=state.dest;
+  const base=pmpmlFare(state.distanceKm);
+  state.fare=Math.round(base*VEH_MULT[state.vehType]);
+  state.autoFare=Math.round(25+state.distanceKm*14); // typical Pune auto fare, for comparison
+  let dbNote='';
+  try{
+    const pickup=state.pickup||TRINITY;
+    const r=await api('/rides/request',{method:'POST', body:JSON.stringify({
+      pickup_lat:pickup[0], pickup_lng:pickup[1],
+      drop_lat:state.destCoords[0], drop_lng:state.destCoords[1], drop_label:dest
+    })});
+    state.backendRequestId=r.requestId; dbNote=' · saved to database ✓';
+  }catch(e){ state.backendRequestId=null; dbNote=' · (backend offline — not saved)'; }
+  document.getElementById('fare-line').textContent =
+    `${state.distanceKm} km to ${dest} by ${state.vehType} · ₹${state.fare} — ${Math.max(0,Math.round((1-state.fare/state.autoFare)*100))}% cheaper than an auto (~₹${state.autoFare})${dbNote}`;
+  show('s-match');
+  if(state.backendRequestId) startWaitingForDriver();
+  else document.getElementById('waiting-msg').textContent='Backend is offline, so this request was not saved and no driver can see it. Start the backend and try again.';
+};
+document.getElementById('back-home').onclick=()=>{ stopWaitingForDriver(); show('s-home'); };
+
+// ---- Rider side: poll until a real driver accepts the request ----
+let waitTimer=null;
+function stopWaitingForDriver(){ if(waitTimer){ clearInterval(waitTimer); waitTimer=null; } }
+function startWaitingForDriver(){
+  stopWaitingForDriver();
+  const msg=document.getElementById('waiting-msg');
+  msg.textContent='Waiting for a nearby student driver to accept your request…';
+  waitTimer=setInterval(async ()=>{
+    try{
+      const r=await api('/rides/current');
+      const match=(r.rides||[])[0]; // backend already filters to rider_id=me OR driver_id=me
+      if(match){
+        stopWaitingForDriver();
+        state.backendRideId=match.ride_id;
+        state.current={id:match.ride_id, driver:match.driver_name, dest:state.dest, fare:match.fare, km:match.distance_km, status:'confirmed', savedToDb:true};
+        saveUser();
+        document.getElementById('confirmed-driver').innerHTML =
+          `<div class="avatar">${match.driver_name[0]}</div><div><strong>${match.driver_name}</strong><div class="muted" style="font-size:0.85rem;">Saved to database ✓</div></div>`;
+        const qrbox=document.getElementById('qrbox'); qrbox.innerHTML='';
+        new QRCode(qrbox, {text:`TRINITYRIDE|${state.user.id}|${Date.now()}`, width:150, height:150});
+        show('s-confirmed');
+        setTimeout(renderConfirmedMap,50);
+      }
+    }catch(e){ msg.textContent='Lost connection to the backend — retrying…'; }
+  }, 3000);
+}
+
+document.getElementById('scan-start').onclick = () => {
+  if(state.current){state.current.status='ongoing'; saveUser();}
+  show('s-ride');
+  const bar=document.getElementById('ride-bar'); const status=document.getElementById('ride-status');
+  let p=0;
+  const t=setInterval(()=>{
+    p+=8; bar.style.width=Math.min(p,100)+'%';
+    if(p>=100){clearInterval(t); status.textContent='Arriving at destination…';}
+  },250);
+  setTimeout(()=>{
+    const rm=document.getElementById('map-ride');
+    if(window.rideMap){window.rideMap.remove();}
+    const m2=L.map(rm,{zoomControl:false}).setView(state.pickup||TRINITY,14); window.rideMap=m2;
+    addTilesWithFallback(m2,'map-ride');
+    const pts=state.routeLatLngs||[state.pickup||TRINITY,state.destCoords];
+    const line=L.polyline(pts,{color:'#E4572E',weight:5}).addTo(m2);
+    dot(state.pickup||TRINITY,'#E4572E','Pickup').addTo(m2); dot(state.destCoords||pts[pts.length-1],'#132A3A','Drop').addTo(m2);
+    m2.fitBounds(line.getBounds(),{padding:[20,20]});
+    setTimeout(()=>m2.invalidateSize(),200);
+  },100);
+};
+
+document.getElementById('end-ride').onclick = async () => {
+  if(state.backendRideId){ try{ await api(`/rides/${state.backendRideId}/end`,{method:'POST'}); }catch(e){} }
+  document.getElementById('sum-fare').textContent = `₹${state.fare}`;
+  const marketRate = state.autoFare||Math.round(state.fare/0.9);
+  const savedThisTrip = marketRate-state.fare;
+  document.getElementById('sum-save').textContent = `₹${savedThisTrip}`;
+  state.ridesTaken += 1;
+  if(state.current){state.rides.unshift({...state.current,status:'completed',when:new Date().toLocaleString()}); state.current=null;}
+  state.totalSaved += savedThisTrip;
+  state.backendRideId=null;
+  saveUser();
+  show('s-summary');
+};
+
+document.querySelectorAll('#stars span').forEach(s=>{
+  s.onclick=()=>{
+    const v=+s.dataset.v;
+    document.querySelectorAll('#stars span').forEach(x=>x.classList.toggle('on', +x.dataset.v<=v));
+  };
+});
+document.getElementById('new-ride').onclick = () => { document.getElementById('dest').value=''; state.destCoords=null; state.routeLatLngs=null; if(routeLine){map.removeLayer(routeLine);routeLine=null;} if(destMarker){map.removeLayer(destMarker);destMarker=null;} show('s-home'); };
+
+// ---- My rides (current / completed / cancelled) ----
+// Pulled from the real backend/MySQL when reachable, merged with any
+// demo-only local rides (ones matched to a mock driver with no dbId).
+let ridesTab='current';
+function rideRow(r){
+  const tag = r.status==='completed'?'<span class="tag done">Completed</span>': r.status==='cancelled'?'<span class="tag cancel">Cancelled</span>':'<span class="tag live">'+(r.status==='ongoing'?'Ongoing':'Driver assigned')+'</span>';
+  const extra = r.status==='cancelled' ? '<div class="muted" style="font-size:0.82rem;">Reason: '+(r.reason||'—')+'</div>' : (r.when?'<div class="muted" style="font-size:0.82rem;">'+r.when+'</div>':'');
+  const div=document.createElement('div'); div.className='ride-item';
+  div.innerHTML='<div class="rowbetween"><strong>To '+r.dest+'</strong>'+tag+'</div><div class="muted" style="font-size:0.88rem;">'+r.driver+' · '+r.km+' km · ₹'+r.fare+(r.fromDb?' · from database':'')+'</div>'+extra;
+  return div;
+}
+async function renderRides(){
+  const list=document.getElementById('rides-list'); list.innerHTML='<p class="muted" style="margin:0;">Loading…</p>';
+  let dbRides=[];
+  try{
+    const endpoint = ridesTab==='current'?'/rides/current':ridesTab==='completed'?'/rides/completed':'/rides/cancelled';
+    const r=await api(endpoint);
+    dbRides=(r.rides||[]).map(x=>({
+      dest:x.drop_label||'—', driver:x.driver_name||'Driver', km:x.distance_km, fare:x.fare,
+      status: ridesTab==='current' ? (x.status||'confirmed') : ridesTab,
+      reason:x.cancel_reason, when:x.scan_ended_at||x.created_at, fromDb:true
+    }));
+  }catch(e){ /* backend offline — fall through to local-only rides below */ }
+
+  let localItems=[];
+  if(ridesTab==='current' && state.current && !state.current.savedToDb) localItems=[state.current];
+  if(ridesTab==='completed') localItems=state.rides.filter(r=>r.status==='completed' && !r.fromDb);
+  if(ridesTab==='cancelled') localItems=state.rides.filter(r=>r.status==='cancelled' && !r.fromDb);
+
+  const items=dbRides.concat(localItems);
+  list.innerHTML='';
+  if(!items.length){list.innerHTML='<p class="muted" style="margin:0;">No '+ridesTab+' rides yet.</p>';return;}
+  items.forEach(r=>list.appendChild(rideRow(r)));
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  ridesTab=t.dataset.t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  renderRides();
+});
+document.getElementById('nav-rides').onclick=()=>{ setNav('nav-rides'); renderRides(); show('s-rides');};
+document.getElementById('r-back').onclick=()=>{ setNav('nav-home'); show('s-home'); };
+document.getElementById('cancel-ride').onclick=async ()=>{
+  const reason=document.getElementById('cancel-reason').value;
+  if(state.backendRideId){ try{ await api(`/rides/${state.backendRideId}/cancel`,{method:'POST', body:JSON.stringify({reason})}); }catch(e){} }
+  if(state.current){state.rides.unshift({...state.current,status:'cancelled',reason,when:new Date().toLocaleString()}); state.current=null;}
+  state.backendRideId=null;
+  saveUser();
+  show('s-home');
+};
+
+// ---- Driver section ----
+let reqTimer=null;
+
+async function renderVehicleUI(){
+  let has=!!state.vehicle;
+  try{
+    const r=await api('/vehicles/mine');
+    if(r.vehicle){ state.vehicle={type:r.vehicle.vehicle_type, reg:r.vehicle.registration_number, model:r.vehicle.model}; has=true; }
+  }catch(e){}
+  document.getElementById('vehicle-form').style.display = has ? 'none' : 'block';
+  document.getElementById('driver-online').style.display = has ? 'block' : 'none';
+  if(has){
+    document.getElementById('veh-summary').textContent = `${state.vehicle.type} · ${state.vehicle.reg}`;
+    document.getElementById('d-rides').textContent = state.driverRides;
+    document.getElementById('d-earn').textContent = '₹'+state.driverEarnings;
+    document.getElementById('online-toggle').classList.toggle('on', state.online);
+    document.getElementById('requests-wrap').style.display = state.online ? 'block' : 'none';
+  }
+}
+document.getElementById('nav-driver').onclick=()=>{ setNav('nav-driver'); renderVehicleUI(); show('s-driver'); };
+document.getElementById('driver-back').onclick=()=>{ clearInterval(reqTimer); setNav('nav-home'); show('s-home'); };
+
+document.getElementById('veh-save').onclick=async ()=>{
+  const type=document.getElementById('veh-type').value.toLowerCase();
+  const reg=document.getElementById('veh-reg').value.trim();
+  const model=document.getElementById('veh-model').value.trim();
+  if(!reg){ alert('Enter your vehicle registration number.'); return; }
+  try{
+    await api('/vehicles',{method:'POST', body:JSON.stringify({vehicle_type:type, registration_number:reg, model})});
+    state.vehicle={type,reg,model}; saveUser(); renderVehicleUI();
+  }catch(e){
+    alert('Could not save to the backend: '+e.message+'. Make sure the server is running.');
+  }
+};
+
+document.getElementById('online-toggle').onclick=()=>{
+  state.online=!state.online; renderVehicleUI();
+  clearInterval(reqTimer);
+  if(state.online){ pollPending(); reqTimer=setInterval(pollPending,4000); }
+  else { document.getElementById('req-list').innerHTML=''; }
+};
+
+// ---- Driver side: real pending requests from the backend ----
+async function pollPending(){
+  const list=document.getElementById('req-list');
+  let requests=[];
+  try{ const r=await api('/rides/pending'); requests=r.requests||[]; }
+  catch(e){ list.innerHTML='<p class="muted" style="margin:0;">Can\'t reach the backend — retrying…</p>'; return; }
+  list.innerHTML='';
+  if(!requests.length){ list.innerHTML='<p class="muted" style="margin:0;">No ride requests right now.</p>'; return; }
+  requests.forEach(req=>{
+    const row=document.createElement('div'); row.className='reqrow';
+    row.innerHTML=`<div class="rowbetween"><strong>${req.rider_name}</strong><span class="muted" style="font-size:0.85rem;">${req.rider_branch||''}</span></div>
+      <div class="muted" style="font-size:0.88rem; margin:4px 0 8px;">To ${req.drop_label||'—'} · ₹${req.estimated_fare}</div>
+      <button class="btn" style="margin:0; padding:9px;">Accept ride</button>`;
+    row.querySelector('button').onclick=async ()=>{
+      clearInterval(reqTimer);
+      try{
+        const r=await api(`/rides/${req.request_id}/accept`,{method:'POST'});
+        state.pickupRideId=r.rideId;
+        state.pickupRider={name:req.rider_name, branch:req.rider_branch||'', spot:req.drop_label, km:r.distanceKm, fare:r.fare};
+        document.getElementById('pickup-rider-card').innerHTML =
+          `<div class="driverrow"><div class="avatar">${req.rider_name[0]}</div><div><strong>${req.rider_name}</strong><div class="muted" style="font-size:0.85rem;">Heading to ${req.drop_label||'—'} · saved to database ✓</div></div></div>
+           <div class="rowbetween" style="margin-top:10px;"><span class="muted">Fare</span><strong>₹${r.fare}</strong></div>`;
+        document.getElementById('dr-progress-wrap').style.display='none';
+        document.getElementById('dr-scan').style.display='block';
+        show('s-driver-ride');
+      }catch(e){
+        alert('Could not accept: '+e.message+' — someone else may have taken it.');
+        pollPending();
+      }
+    };
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('dr-scan').onclick=()=>{
+  document.getElementById('dr-progress-wrap').style.display='block';
+  document.getElementById('dr-scan').style.display='none';
+  const bar=document.getElementById('dr-bar'); let p=0;
+  const t=setInterval(()=>{ p+=10; bar.style.width=Math.min(p,100)+'%';
+    if(p>=100){clearInterval(t); document.getElementById('dr-status').textContent='Arrived at destination…';}
+  },250);
+};
+document.getElementById('dr-end').onclick=async ()=>{
+  const r=state.pickupRider;
+  if(state.pickupRideId){ try{ await api(`/rides/${state.pickupRideId}/end`,{method:'POST'}); }catch(e){} }
+  state.driverRides+=1; state.driverEarnings+=r.fare; saveUser();
+  document.getElementById('dr-scan').style.display='block';
+  if(state.online){ reqTimer=setInterval(pollPending,4000); }
+  renderVehicleUI();
+  show('s-driver');
+};
+</script>
+</body>
+</html>

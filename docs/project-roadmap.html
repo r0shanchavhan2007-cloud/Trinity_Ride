@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trinity Ride — Project Route Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#132A3A;
+    --ink-soft:#3C5568;
+    --paper:#EEF1F0;
+    --paper-raised:#FFFFFF;
+    --route:#E4572E;
+    --route-soft:#F6D9CE;
+    --stop:#1E6F5C;
+    --hazard:#B3541E;
+    --hazard-bg:#F7E9DE;
+    --line:#C7CFCB;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#EAEFEE; --ink-soft:#B7C4C1; --paper:#101917; --paper-raised:#182422;
+      --route:#FF7A50; --route-soft:#3A2620; --stop:#4FD1AE; --hazard:#F0A46A; --hazard-bg:#2A2019; --line:#33413D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#EAEFEE; --ink-soft:#B7C4C1; --paper:#101917; --paper-raised:#182422;
+    --route:#FF7A50; --route-soft:#3A2620; --stop:#4FD1AE; --hazard:#F0A46A; --hazard-bg:#2A2019; --line:#33413D;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Inter',sans-serif; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif; margin:0; letter-spacing:-0.01em;}
+  .wrap{max-width:920px; margin:0 auto; padding:56px 24px 90px;}
+
+  header{margin-bottom:56px;}
+  .kicker{color:var(--route); font-weight:600; font-size:0.95rem; margin-bottom:10px;}
+  h1{font-size:clamp(2rem,5vw,2.9rem); font-weight:600; max-width:14ch;}
+  .sub{color:var(--ink-soft); font-size:1.05rem; max-width:56ch; margin-top:14px;}
+
+  .route{position:relative; margin:48px 0 64px; padding-left:34px;}
+  .route::before{
+    content:''; position:absolute; left:9px; top:8px; bottom:8px; width:3px;
+    background:linear-gradient(var(--route), var(--stop));
+    border-radius:2px;
+  }
+  .stopcard{position:relative; margin-bottom:34px;}
+  .stopcard:last-child{margin-bottom:0;}
+  .dot{
+    position:absolute; left:-34px; top:4px; width:22px; height:22px; border-radius:50%;
+    background:var(--paper-raised); border:3px solid var(--route);
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.7rem; font-weight:700; color:var(--route);
+  }
+  .stopcard.terminus .dot{border-color:var(--stop); color:var(--stop);}
+  .card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:10px;
+    padding:20px 22px;
+  }
+  .card h3{font-size:1.25rem; font-weight:600; margin-bottom:4px;}
+  .meta{display:flex; gap:14px; flex-wrap:wrap; font-size:0.85rem; color:var(--ink-soft); margin:6px 0 12px;}
+  .meta span{display:inline-flex; align-items:center; gap:6px;}
+  .meta .pill{background:var(--route-soft); color:var(--route); padding:2px 9px; border-radius:20px; font-weight:600;}
+  .card p{margin:0; color:var(--ink-soft); font-size:0.97rem;}
+  .card ul{margin:10px 0 0; padding-left:18px; color:var(--ink); font-size:0.95rem;}
+  .card li{margin-bottom:4px;}
+  .dep{
+    margin-top:12px; font-size:0.87rem; color:var(--stop); font-weight:500;
+    border-top:1px dashed var(--line); padding-top:10px;
+  }
+
+  section.risks{margin-top:64px;}
+  section.risks h2{font-size:1.6rem; font-weight:600; margin-bottom:6px;}
+  section.risks > p{color:var(--ink-soft); margin:0 0 24px; max-width:60ch;}
+  .hazard-grid{display:grid; grid-template-columns:1fr; gap:14px;}
+  @media(min-width:640px){.hazard-grid{grid-template-columns:1fr 1fr;}}
+  .hazard{
+    background:var(--hazard-bg); border-left:4px solid var(--hazard);
+    border-radius:6px; padding:16px 18px;
+  }
+  .hazard h4{margin:0 0 6px; font-size:1rem; font-weight:700; color:var(--hazard); font-family:'Inter',sans-serif;}
+  .hazard p{margin:0; font-size:0.92rem; color:var(--ink);}
+
+  footer{margin-top:56px; padding-top:24px; border-top:1px solid var(--line); color:var(--ink-soft); font-size:0.9rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Trinity Academy College of Engineering, Pune</div>
+    <h1>Trinity Ride — build route</h1>
+    <p class="sub">A campus-only ridesharing app: student ID verification, QR-scan ride start, live maps, and fares set below market. Seven stops from idea to launch.</p>
+  </header>
+
+  <div class="route">
+
+    <div class="stopcard">
+      <div class="dot">1</div>
+      <div class="card">
+        <h3>Foundations</h3>
+        <div class="meta"><span class="pill">1–2 weeks</span><span>No dependencies</span></div>
+        <p>Lock the decisions everything else builds on.</p>
+        <ul>
+          <li>Define roles: Rider, Driver, Admin — a student can be both rider and driver</li>
+          <li>Fare model: base + per-km, priced 10% under your Pune auto/cab benchmark</li>
+          <li>Verification flow: college email domain, ID number, or admin-approved upload</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stopcard">
+      <div class="dot">2</div>
+      <div class="card">
+        <h3>Backend &amp; database</h3>
+        <div class="meta"><span class="pill">2–3 weeks</span></div>
+        <p>The MySQL core and identity layer.</p>
+        <ul>
+          <li>Schema: users, rides, vehicles, qr_codes, ride_requests, payments</li>
+          <li>Auth via college email OTP</li>
+          <li>Unique QR/code generation tied to each verified student</li>
+        </ul>
+        <div class="dep">Needs → Phase 1 role &amp; verification decisions</div>
+      </div>
+    </div>
+
+    <div class="stopcard">
+      <div class="dot">3</div>
+      <div class="card">
+        <h3>Maps &amp; location</h3>
+        <div class="meta"><span class="pill">2–3 weeks · parallel</span></div>
+        <p>Nearby-driver matching and live routing.</p>
+        <ul>
+          <li>Map provider decision — see hazard note on "free" maps</li>
+          <li>Geolocation radius search for nearby drivers</li>
+          <li>Route, ETA, and fare estimate</li>
+        </ul>
+        <div class="dep">Needs → a location table ready in the backend</div>
+      </div>
+    </div>
+
+    <div class="stopcard">
+      <div class="dot">4</div>
+      <div class="card">
+        <h3>Frontend UI</h3>
+        <div class="meta"><span class="pill">3–4 weeks · parallel</span></div>
+        <p>Rapido-style screens, built against mocked data first.</p>
+        <ul>
+          <li>Home map, pickup/drop pins, ride-type cards</li>
+          <li>Driver-en-route and ride-in-progress screens</li>
+          <li>Camera-based QR scan screen to start a ride</li>
+        </ul>
+        <div class="dep">Needs → draft API contracts from Phases 2 &amp; 3</div>
+      </div>
+    </div>
+
+    <div class="stopcard">
+      <div class="dot">5</div>
+      <div class="card">
+        <h3>Ride lifecycle logic</h3>
+        <div class="meta"><span class="pill">2 weeks</span></div>
+        <p>Wiring the pieces into one flow.</p>
+        <ul>
+          <li>Request → match → scan-to-start → live tracking</li>
+          <li>Scan/confirm-to-end → fare calc → rating</li>
+        </ul>
+        <div class="dep">Needs → Phases 2–4 integrated</div>
+      </div>
+    </div>
+
+    <div class="stopcard">
+      <div class="dot">6</div>
+      <div class="card">
+        <h3>Testing &amp; pilot</h3>
+        <div class="meta"><span class="pill">2–3 weeks</span></div>
+        <p>Prove it on a small, real slice of campus.</p>
+        <ul>
+          <li>Closed pilot — one department or hostel block</li>
+          <li>Load-test matching under concurrent requests</li>
+        </ul>
+        <div class="dep">Needs → a merged, testable build</div>
+      </div>
+    </div>
+
+    <div class="stopcard terminus">
+      <div class="dot">7</div>
+      <div class="card">
+        <h3>Launch &amp; iterate</h3>
+        <div class="meta"><span class="pill">Ongoing</span></div>
+        <p>Wider campus rollout, feedback loop, monitoring — the line keeps going from here.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <section class="risks">
+    <h2>Hazards on the route</h2>
+    <p>Worth deciding on early — each of these reshapes a phase above if left until later.</p>
+    <div class="hazard-grid">
+      <div class="hazard">
+        <h4>"Free" maps aren't free at scale</h4>
+        <p>Google Maps' free tier ends fast under live tracking pings. OpenStreetMap + Leaflet is genuinely free but needs more routing work yourself.</p>
+      </div>
+      <div class="hazard">
+        <h4>Liability &amp; safety</h4>
+        <p>Real money, real rides, real students — talk to college administration before the pilot, not after.</p>
+      </div>
+      <div class="hazard">
+        <h4>QR spoofing</h4>
+        <p>A static code tied to identity invites screenshot-and-reuse. Use short-lived or signed tokens instead.</p>
+      </div>
+      <div class="hazard">
+        <h4>Fare benchmark math</h4>
+        <p>"10% cheaper" needs a maintained reference price — manual updates or fragile scraping, decide which.</p>
+      </div>
+      <div class="hazard">
+        <h4>Student data in MySQL</h4>
+        <p>ID numbers, phone numbers, live location — hash sensitive fields, enforce HTTPS, restrict who can query what.</p>
+      </div>
+      <div class="hazard">
+        <h4>Scope vs. team size</h4>
+        <p>Demo-ready in ~2–3 months with a small team; safe for real rides takes longer. Size the team against the route above.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Route map for Trinity Ride — a campus-only rideshare project for Trinity Academy College of Engineering, Pune.</footer>
+
+</div>
+</body>
+</html>
