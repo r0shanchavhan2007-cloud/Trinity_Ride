@@ -171,9 +171,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
   <div class="topbar">
     <div class="topbar-left"><div class="logo">T</div><span>Trinity Ride</span></div>
   </div>
-
-  <!-- VERIFY -->
-  <div class="screen active" id="s-verify">
+<div class="screen active" id="s-verify">
     <h1 style="font-size:1.6rem; margin-bottom:6px;">Verify your college ID</h1>
     <p class="hint">Rides are open to Trinity Academy College of Engineering students only.</p>
     <label>Full name</label>
@@ -191,9 +189,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <p class="hint" id="v-api-status"></p>
     <p class="hint" style="text-align:center; margin-top:14px;">Already have an account? <a href="#" id="show-login" style="color:var(--accent); font-weight:600; text-decoration:none;">Log in</a></p>
   </div>
-
-  <!-- LOGIN -->
-  <div class="screen" id="s-login">
+<div class="screen" id="s-login">
     <h1 style="font-size:1.6rem; margin-bottom:6px;">Log in</h1>
     <p class="hint">Welcome back — enter your college email and password.</p>
     <label>College email</label>
@@ -205,9 +201,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <p class="hint" style="text-align:center; margin-top:10px;"><a href="#" id="show-forgot" style="color:var(--ink-soft); text-decoration:none;">Forgot password?</a></p>
     <p class="hint" style="text-align:center; margin-top:6px;">New here? <a href="#" id="show-signup" style="color:var(--accent); font-weight:600; text-decoration:none;">Create an account</a></p>
   </div>
-
-  <!-- FORGOT PASSWORD: step 1 -->
-  <div class="screen" id="s-forgot">
+<div class="screen" id="s-forgot">
     <h1 style="font-size:1.6rem; margin-bottom:6px;">Reset your password</h1>
     <p class="hint">Enter your college email and we'll send a reset code.</p>
     <label>College email</label>
@@ -216,9 +210,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <p class="hint" id="fp-error" style="color:var(--accent); display:none;"></p>
     <p class="hint" style="text-align:center; margin-top:14px;"><a href="#" id="fp-back-login" style="color:var(--accent); font-weight:600; text-decoration:none;">Back to log in</a></p>
   </div>
-
-  <!-- FORGOT PASSWORD: step 2 -->
-  <div class="screen" id="s-reset">
+<div class="screen" id="s-reset">
     <h1 style="font-size:1.6rem; margin-bottom:6px;">Enter the code</h1>
     <p class="hint">Check your college email for a 6-digit code. If the server has no email set up, check the backend's terminal window instead.</p>
     <label>Reset code</label>
@@ -228,9 +220,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <button class="btn" id="rs-submit">Reset password</button>
     <p class="hint" id="rs-error" style="color:var(--accent); display:none;"></p>
   </div>
-
-  <!-- OTP -->
-  <div class="screen" id="s-otp">
+<div class="screen" id="s-otp">
     <h1 style="font-size:1.6rem; margin-bottom:6px;">Enter your code</h1>
     <p class="hint">A 6-digit code was sent to your college email. If the server has no email set up, check the backend's terminal window — it prints the code there instead.</p>
     <label>Verification code</label>
@@ -238,9 +228,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <button class="btn" id="otp-submit">Verify &amp; continue</button>
     <p class="hint" id="otp-error" style="color:var(--accent); display:none;"></p>
   </div>
-
-  <!-- HOME / MAP -->
-  <div class="screen has-nav" id="s-home">
+<div class="screen has-nav" id="s-home">
     <div class="mapwrap">
       <div class="rowbetween">
         <div>
@@ -273,9 +261,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
       </div>
     </div>
   </div>
-
-  <!-- PROFILE -->
-  <div class="screen has-nav" id="s-profile">
+<div class="screen has-nav" id="s-profile">
     <div class="profile-hero">
       <div class="avatar" id="p-avatar">—</div>
       <div>
@@ -295,9 +281,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <button class="btn secondary" id="p-back">Back to map</button>
     <button class="btn" id="p-logout" style="background:var(--card); color:var(--accent); border:1px solid var(--accent);">Log out</button>
   </div>
-
-  <!-- MY RIDES -->
-  <div class="screen has-nav" id="s-rides">
+<div class="screen has-nav" id="s-rides">
     <h2 style="font-size:1.4rem;">My rides</h2>
     <div class="tabs">
       <button class="tab on" data-t="current">Current</button>
@@ -307,9 +291,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <div class="card" id="rides-list"></div>
     <button class="btn secondary" id="r-back">Back to map</button>
   </div>
-
-  <!-- DRIVER -->
-  <div class="screen has-nav" id="s-driver">
+<div class="screen has-nav" id="s-driver">
     <h2 style="font-size:1.4rem;">Drive &amp; earn</h2>
     <p class="hint">Register your vehicle once, then go online to see ride requests from students nearby.</p>
 
@@ -339,9 +321,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     </div>
     <button class="btn secondary" id="driver-back">Back to map</button>
   </div>
-
-  <!-- DRIVER: ACTIVE RIDE -->
-  <div class="screen" id="s-driver-ride">
+<div class="screen" id="s-driver-ride">
     <h2 style="font-size:1.4rem;">Picking up rider</h2>
     <div class="card" style="margin-top:14px;" id="pickup-rider-card"></div>
     <p class="hint">Ask the rider to show their QR code, then scan it to start.</p>
@@ -352,9 +332,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
       <button class="btn" id="dr-end">Simulate: end ride</button>
     </div>
   </div>
-
-  <!-- MATCH -->
-  <div class="screen" id="s-match">
+<div class="screen" id="s-match">
     <h2 style="font-size:1.4rem;">Finding you a driver</h2>
     <p class="hint" id="fare-line"></p>
     <div class="card" style="margin-top:14px; text-align:center; padding:28px 18px;">
@@ -363,9 +341,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     </div>
     <button class="btn secondary" id="back-home">Cancel search</button>
   </div>
-
-  <!-- CONFIRMED -->
-  <div class="screen" id="s-confirmed">
+<div class="screen" id="s-confirmed">
     <h2 style="font-size:1.4rem;">Driver on the way</h2>
     <div class="card" style="margin-top:14px;">
       <div class="driverrow" id="confirmed-driver"></div>
@@ -377,18 +353,14 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <select id="cancel-reason" style="margin-top:14px;"><option>Changed plans</option><option>Driver taking too long</option><option>Booked by mistake</option><option>Found another ride</option></select>
     <button class="btn secondary" id="cancel-ride" style="margin-top:10px;">Cancel ride</button>
   </div>
-
-  <!-- IN PROGRESS -->
-  <div class="screen" id="s-ride">
+<div class="screen" id="s-ride">
     <h2 style="font-size:1.4rem;">Ride in progress</h2>
     <div id="map-ride" style="height:200px; border-radius:14px; border:1px solid var(--line); margin:14px 0;"></div>
     <div class="progress"><div id="ride-bar"></div></div>
     <p class="muted" id="ride-status">Heading to your destination…</p>
     <button class="btn" id="end-ride">Simulate: end ride</button>
   </div>
-
-  <!-- BOTTOM NAV -->
-  <div id="bottomnav">
+<div id="bottomnav">
     <div class="nav-row">
       <button class="navbtn on" id="nav-home"><span class="ic">🏠</span>Home</button>
       <button class="navbtn" id="nav-rides"><span class="ic">🕘</span>Rides</button>
@@ -396,9 +368,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
       <button class="navbtn" id="nav-profile"><span class="ic">👤</span>Profile</button>
     </div>
   </div>
-
-  <!-- SUMMARY -->
-  <div class="screen" id="s-summary">
+<div class="screen" id="s-summary">
     <h2 style="font-size:1.4rem;">Trip complete</h2>
     <div class="card" style="margin-top:14px;">
       <div class="rowbetween"><span class="muted">Fare paid</span><strong id="sum-fare"></strong></div>
@@ -450,7 +420,7 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
 
 // ---- Real backend connection ----
 // Change this if your backend runs somewhere other than localhost:4000.
-const API_BASE='http://localhost:4000/api';
+const API_BASE='https://trinity-ride.onrender.com/api';
 async function api(path, options={}){
   const headers={'Content-Type':'application/json', ...(options.headers||{})};
   if(state.token) headers['Authorization']='Bearer '+state.token;
