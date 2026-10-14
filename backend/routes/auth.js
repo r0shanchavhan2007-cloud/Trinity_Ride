@@ -16,8 +16,42 @@ function isCollegeEmail(email) {
 }
 
 async function sendOtpEmail(email, code) {
-  // Preferred path: Resend, which sends over HTTPS (port 443). This works on
-  // hosts like Render's free tier that block the outbound SMTP ports Gmail needs.
+  // Preferred path: Brevo. Sends over HTTPS (works on Render's free tier,
+  // unlike SMTP), and — unlike Resend's free test mode — can send to ANY
+  // recipient once a single sender address is verified, no domain needed.
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+        body: JSON.stringify({
+          sender: {
+            name: process.env.MAIL_FROM_NAME || 'Trinity Ride',
+            email: process.env.MAIL_FROM_EMAIL,
+          },
+          to: [{ email }],
+          subject: 'Your Trinity Ride verification code',
+          textContent: `Your Trinity Ride code is ${code}. It expires in 10 minutes.`,
+        }),
+      });
+      if (!resp.ok) {
+        console.error('Brevo failed:', resp.status, await resp.text());
+        console.log(`[fallback] OTP for ${email}: ${code}`);
+      }
+    } catch (err) {
+      console.error('Brevo request error:', err);
+      console.log(`[fallback] OTP for ${email}: ${code}`);
+    }
+    return;
+  }
+
+  // Secondary path: Resend. Only actually delivers to the email address that
+  // owns the Resend account, unless a domain is verified there — kept here
+  // as a fallback for testing with your own inbox, not for real students.
   if (process.env.RESEND_API_KEY) {
     try {
       const resp = await fetch('https://api.resend.com/emails', {
