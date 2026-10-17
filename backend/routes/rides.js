@@ -29,13 +29,18 @@ function computeFare(km) {
 // a request_id to attach a driver to once one is chosen.
 router.post('/request', requireAuth, async (req, res) => {
   try {
-    const { pickup_lat, pickup_lng, drop_lat, drop_lng, drop_label } = req.body;
+    const { pickup_lat, pickup_lng, drop_lat, drop_lng, drop_label, fare: clientFare } = req.body;
     if ([pickup_lat, pickup_lng, drop_lat, drop_lng].some((v) => v === undefined)) {
       return res.status(400).json({ error: 'pickup_lat, pickup_lng, drop_lat and drop_lng are required.' });
     }
 
     const km = +distanceKm(pickup_lat, pickup_lng, drop_lat, drop_lng).toFixed(2);
-    const { fare, marketRate } = computeFare(km);
+    // Trust the fare the rider's app already showed them (it includes the
+    // PMPML-stage pricing and vehicle-type multiplier) rather than
+    // recomputing a different number here — a driver must see the exact
+    // same fare the rider was quoted, never a different one.
+    const { fare: serverFare, marketRate } = computeFare(km);
+    const fare = typeof clientFare === 'number' && clientFare > 0 ? clientFare : serverFare;
 
     const [result] = await pool.query(
       `INSERT INTO ride_requests (rider_id, pickup_lat, pickup_lng, drop_lat, drop_lng, drop_label, estimated_fare, status)
@@ -162,10 +167,11 @@ router.get('/pending', requireAuth, async (req, res) => {
     const [rows] = await pool.query(
       `SELECT rq.id AS request_id, rq.pickup_lat, rq.pickup_lng, rq.drop_lat, rq.drop_lng,
               rq.drop_label, rq.estimated_fare, rq.created_at,
-              u.full_name AS rider_name, u.branch AS rider_branch
+              u.full_name AS rider_name, u.branch AS rider_branch, u.phone AS rider_phone
        FROM ride_requests rq
        JOIN users u ON u.id = rq.rider_id
        WHERE rq.status = 'pending' AND rq.rider_id != ?
+         AND rq.created_at > NOW() - INTERVAL 30 MINUTE
        ORDER BY rq.created_at DESC LIMIT 20`,
       [req.user.id]
     );
@@ -191,7 +197,8 @@ router.post('/:requestId/accept', requireAuth, async (req, res) => {
     if (!vehicle) return res.status(400).json({ error: 'Register a vehicle first (Drive & earn) before accepting rides.' });
 
     const km = +distanceKm(request.pickup_lat, request.pickup_lng, request.drop_lat, request.drop_lng).toFixed(2);
-    const { fare, marketRate } = computeFare(km);
+    const { marketRate } = computeFare(km);
+    const fare = request.estimated_fare; // exactly what the rider was quoted — never a different number
 
     const [ride] = await pool.query(
       `INSERT INTO rides (request_id, rider_id, driver_id, vehicle_id, distance_km, fare, market_rate_reference, status)
@@ -200,7 +207,12 @@ router.post('/:requestId/accept', requireAuth, async (req, res) => {
     );
     await pool.query("UPDATE ride_requests SET status = 'matched' WHERE id = ?", [request.id]);
 
-    res.status(201).json({ rideId: ride.insertId, fare, distanceKm: km, dropLabel: request.drop_label });
+    const [[rider]] = await pool.query('SELECT full_name, phone, branch FROM users WHERE id = ?', [request.rider_id]);
+    res.status(201).json({
+      rideId: ride.insertId, fare, distanceKm: km, dropLabel: request.drop_label,
+      pickupLat: request.pickup_lat, pickupLng: request.pickup_lng,
+      rider: { name: rider.full_name, phone: rider.phone, branch: rider.branch },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not accept this ride.' });

@@ -78,7 +78,29 @@ body{height:100%; margin:0; background:var(--bg); color:var(--ink); font-family:
 h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
 #app{max-width:460px; margin:0 auto; min-height:100%; background:var(--bg); display:flex; flex-direction:column;}
 .screen{display:none; flex:1; flex-direction:column; padding:22px 20px calc(24px + env(safe-area-inset-bottom,0px));}
-.screen.active{display:flex;}
+.screen.active{display:flex; animation:screenIn .32s cubic-bezier(.25,.8,.35,1);}
+@keyframes screenIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+@keyframes popIn{from{opacity:0; transform:scale(.88);} to{opacity:1; transform:scale(1);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes searchPulse{0%,100%{transform:scale(1); opacity:1;} 50%{transform:scale(1.12); opacity:.75;}}
+*{transition:background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .12s ease, color .18s ease;}
+button, .btn, .navbtn, .vehchip, .tab, .iconbtn, .swbtn{-webkit-tap-highlight-color:transparent;}
+.btn:active, .tab:active, .vehchip:active, .navbtn:active, .iconbtn:active{transform:scale(0.96);}
+.btn{box-shadow:0 1px 2px rgba(0,0,0,.08);}
+.btn:not(:disabled):hover{box-shadow:0 4px 14px rgba(228,87,46,.28);}
+input:focus, select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+.card{transition:box-shadow .2s ease, transform .2s ease;}
+.vehchip{cursor:pointer;}
+.vehchip.on{animation:popIn .25s ease;}
+.driverrow, .ride-item, .reqrow{animation:screenIn .3s ease;}
+#qrbox{animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+.avatar{transition:transform .2s ease;}
+.driverrow:hover .avatar{transform:scale(1.08) rotate(-4deg);}
+.navbtn{position:relative;}
+.navbtn .ic{display:inline-block; transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.navbtn.on .ic{transform:scale(1.18) translateY(-2px);}
+.stat{transition:transform .2s ease;}
+.stat:active{transform:scale(.96);}
 .topbar{display:flex; align-items:center; gap:10px; padding:14px 20px; padding-top:calc(14px + env(safe-area-inset-top,0px)); border-bottom:1px solid var(--line); background:var(--card); position:sticky; top:0; z-index:5;}
 .topbar .logo{width:30px; height:30px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-family:'Fraunces',serif;}
 .topbar span{font-weight:600;}
@@ -182,8 +204,15 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <input id="v-id" placeholder="e.g. TACE2026CS118">
     <label>Branch &amp; year</label>
     <input id="v-branch" placeholder="e.g. Computer Engineering, TY">
+    <label>Phone number</label>
+    <input id="v-phone" inputmode="tel" placeholder="e.g. 9876543210">
     <label>Password</label>
     <input id="v-pass" type="password" placeholder="Create a password">
+    <label>Verify using</label>
+    <div class="vehrow" style="margin-top:0;">
+      <div class="vehchip on" data-verify="email" style="padding:10px;"><span class="vname">Email</span></div>
+      <div class="vehchip" data-verify="phone" style="padding:10px;"><span class="vname">Phone (SMS)</span></div>
+    </div>
     <button class="btn" id="v-submit">Create account</button>
     <p class="hint" id="v-error" style="color:var(--accent); display:none;"></p>
     <p class="hint" id="v-api-status"></p>
@@ -212,7 +241,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
   </div>
 <div class="screen" id="s-reset">
     <h1 style="font-size:1.6rem; margin-bottom:6px;">Enter the code</h1>
-    <p class="hint">Check your college email for a 6-digit code. If the server has no email set up, check the backend's terminal window instead.</p>
+    <p class="hint">Check your college email for a 6-digit code.</p>
     <label>Reset code</label>
     <input id="rs-code" inputmode="numeric" maxlength="6" placeholder="123456">
     <label>New password</label>
@@ -222,7 +251,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
   </div>
 <div class="screen" id="s-otp">
     <h1 style="font-size:1.6rem; margin-bottom:6px;">Enter your code</h1>
-    <p class="hint">A 6-digit code was sent to your college email. If the server has no email set up, check the backend's terminal window — it prints the code there instead.</p>
+    <p class="hint">A 6-digit code was sent to your college email.</p>
     <label>Verification code</label>
     <input id="otp-code" inputmode="numeric" maxlength="6" placeholder="123456">
     <button class="btn" id="otp-submit">Verify &amp; continue</button>
@@ -324,19 +353,27 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
 <div class="screen" id="s-driver-ride">
     <h2 style="font-size:1.4rem;">Picking up rider</h2>
     <div class="card" style="margin-top:14px;" id="pickup-rider-card"></div>
-    <p class="hint">Ask the rider to show their QR code, then scan it to start.</p>
-    <button class="btn" id="dr-scan">Simulate: scan rider's QR</button>
+    <div id="map-driver-pickup" style="height:180px; border-radius:14px; border:1px solid var(--line); margin:14px 0;"></div>
+    <div id="dr-scan-wrap">
+      <p class="hint">Point your camera at the rider's QR code to start the ride.</p>
+      <div style="position:relative; border-radius:14px; overflow:hidden; background:#000; aspect-ratio:1/1;">
+        <video id="dr-video" playsinline style="width:100%; height:100%; object-fit:cover; display:block;"></video>
+      </div>
+      <canvas id="dr-canvas" style="display:none;"></canvas>
+      <p class="hint" id="dr-scan-status" style="text-align:center;">Starting camera…</p>
+      <button class="btn secondary" id="dr-scan-cancel">Cancel</button>
+    </div>
     <div style="display:none;" id="dr-progress-wrap">
       <div class="progress" style="margin-top:18px;"><div id="dr-bar"></div></div>
       <p class="muted" id="dr-status">Ride in progress…</p>
-      <button class="btn" id="dr-end">Simulate: end ride</button>
+      <button class="btn" id="dr-end">End ride</button>
     </div>
   </div>
 <div class="screen" id="s-match">
     <h2 style="font-size:1.4rem;">Finding you a driver</h2>
     <p class="hint" id="fare-line"></p>
     <div class="card" style="margin-top:14px; text-align:center; padding:28px 18px;">
-      <div style="font-size:2rem;">🔎</div>
+      <div style="font-size:2rem; display:inline-block; animation:searchPulse 1.6s ease-in-out infinite;">🔎</div>
       <p class="muted" id="waiting-msg" style="margin-top:10px;">Waiting for a nearby student driver to accept your request…</p>
     </div>
     <button class="btn secondary" id="back-home">Cancel search</button>
@@ -349,7 +386,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     </div>
     <div id="map-confirmed" style="height:220px; border-radius:14px; border:1px solid var(--line); margin:14px 0;"></div>
     <div id="qrbox"></div>
-    <button class="btn" id="scan-start">Simulate: driver scans my code</button>
+    <p class="hint" id="qr-status" style="text-align:center;">Waiting for the driver to scan this code…</p>
     <select id="cancel-reason" style="margin-top:14px;"><option>Changed plans</option><option>Driver taking too long</option><option>Booked by mistake</option><option>Found another ride</option></select>
     <button class="btn secondary" id="cancel-ride" style="margin-top:10px;">Cancel ride</button>
   </div>
@@ -384,6 +421,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <script>
 const TRINITY = [18.4400, 73.8850]; // Yewalewadi, Pune — approx campus location
 const state = { user:null, dest:null, distanceKm:0, fare:0, driver:null, ridesTaken:0, totalSaved:0, rides:[], current:null, vehicle:null, online:false, driverEarnings:0, driverRides:0, vehType:'bike' };
@@ -432,6 +470,12 @@ async function api(path, options={}){
 
 let pendingSignup=null; // held between register → OTP screens
 
+let verifyVia='email';
+document.querySelectorAll('.vehchip[data-verify]').forEach(c=>c.onclick=()=>{
+  verifyVia=c.dataset.verify;
+  document.querySelectorAll('.vehchip[data-verify]').forEach(x=>x.classList.toggle('on',x===c));
+});
+
 document.getElementById('v-submit').onclick = async () => {
   const errEl=document.getElementById('v-error'), statusEl=document.getElementById('v-api-status');
   errEl.style.display='none'; statusEl.textContent='';
@@ -439,13 +483,19 @@ document.getElementById('v-submit').onclick = async () => {
   const college_email=document.getElementById('v-email').value.trim();
   const id_card_number=document.getElementById('v-id').value.trim();
   const branch=document.getElementById('v-branch').value.trim();
+  const phone=document.getElementById('v-phone').value.trim();
   const password=document.getElementById('v-pass').value;
-  if(!full_name||!college_email||!id_card_number||!password){
-    errEl.textContent='Please fill in name, email, ID card number and a password.'; errEl.style.display='block'; return;
+  if(!full_name||!college_email||!id_card_number||!phone||!password){
+    errEl.textContent='Please fill in name, email, phone number, ID card number and a password.'; errEl.style.display='block'; return;
+  }
+  if(verifyVia==='phone'){
+    errEl.textContent='Phone verification isn\u2019t available just yet \u2014 please choose Email for now.';
+    errEl.style.display='block';
+    return;
   }
   statusEl.textContent='Creating your account…';
   try{
-    await api('/auth/register', {method:'POST', body:JSON.stringify({full_name,college_email,id_card_number,branch,password})});
+    await api('/auth/register', {method:'POST', body:JSON.stringify({full_name,college_email,id_card_number,branch,phone,password,verify_via:verifyVia})});
     pendingSignup={college_email};
     statusEl.textContent='';
     show('s-otp');
@@ -815,20 +865,20 @@ document.getElementById('find-ride').onclick = async () => {
   const base=pmpmlFare(state.distanceKm);
   state.fare=Math.round(base*VEH_MULT[state.vehType]);
   state.autoFare=Math.round(25+state.distanceKm*14); // typical Pune auto fare, for comparison
-  let dbNote='';
+  document.getElementById('fare-line').textContent =
+    `${state.distanceKm} km to ${dest} by ${state.vehType} · ₹${state.fare} — ${Math.max(0,Math.round((1-state.fare/state.autoFare)*100))}% cheaper than an auto (~₹${state.autoFare})`;
   try{
     const pickup=state.pickup||TRINITY;
     const r=await api('/rides/request',{method:'POST', body:JSON.stringify({
       pickup_lat:pickup[0], pickup_lng:pickup[1],
-      drop_lat:state.destCoords[0], drop_lng:state.destCoords[1], drop_label:dest
+      drop_lat:state.destCoords[0], drop_lng:state.destCoords[1], drop_label:dest,
+      fare:state.fare
     })});
-    state.backendRequestId=r.requestId; dbNote=' · saved to database ✓';
-  }catch(e){ state.backendRequestId=null; dbNote=' · (backend offline — not saved)'; }
-  document.getElementById('fare-line').textContent =
-    `${state.distanceKm} km to ${dest} by ${state.vehType} · ₹${state.fare} — ${Math.max(0,Math.round((1-state.fare/state.autoFare)*100))}% cheaper than an auto (~₹${state.autoFare})${dbNote}`;
+    state.backendRequestId=r.requestId;
+  }catch(e){ state.backendRequestId=null; }
   show('s-match');
   if(state.backendRequestId) startWaitingForDriver();
-  else document.getElementById('waiting-msg').textContent='Backend is offline, so this request was not saved and no driver can see it. Start the backend and try again.';
+  else document.getElementById('waiting-msg').textContent="Couldn't reach the server right now. Please check your connection and try again.";
 };
 document.getElementById('back-home').onclick=()=>{ stopWaitingForDriver(); show('s-home'); };
 
@@ -846,22 +896,58 @@ function startWaitingForDriver(){
       if(match){
         stopWaitingForDriver();
         state.backendRideId=match.ride_id;
-        state.current={id:match.ride_id, driver:match.driver_name, dest:state.dest, fare:match.fare, km:match.distance_km, status:'confirmed', savedToDb:true};
+        state.current={id:match.ride_id, driver:match.driver_name, dest:state.dest, fare:match.fare, km:match.distance_km, status:'confirmed'};
         saveUser();
         document.getElementById('confirmed-driver').innerHTML =
-          `<div class="avatar">${match.driver_name[0]}</div><div><strong>${match.driver_name}</strong><div class="muted" style="font-size:0.85rem;">Saved to database ✓</div></div>`;
-        const qrbox=document.getElementById('qrbox'); qrbox.innerHTML='';
-        new QRCode(qrbox, {text:`TRINITYRIDE|${state.user.id}|${Date.now()}`, width:150, height:150});
+          `<div class="avatar">${match.driver_name[0]}</div><div><strong>${match.driver_name}</strong><div class="muted" style="font-size:0.85rem;">On the way to pick you up</div></div>`;
+        await refreshRideQr();
         show('s-confirmed');
         setTimeout(renderConfirmedMap,50);
+        startWaitingForRideStart();
       }
-    }catch(e){ msg.textContent='Lost connection to the backend — retrying…'; }
+    }catch(e){ msg.textContent='Lost connection — retrying…'; }
   }, 3000);
 }
 
-document.getElementById('scan-start').onclick = () => {
+// Generates a fresh short-lived QR token from the backend and renders it.
+// Tokens expire quickly (see QR_TOKEN_TTL_SECONDS on the backend), so this
+// is also called again automatically if one expires before being scanned.
+async function refreshRideQr(){
+  const qrbox=document.getElementById('qrbox'); const status=document.getElementById('qr-status');
+  try{
+    const r=await api('/qr/generate',{method:'POST'});
+    qrbox.innerHTML='';
+    new QRCode(qrbox, {text:r.token, width:150, height:150});
+    status.textContent='Waiting for the driver to scan this code…';
+    clearTimeout(qrRefreshTimer);
+    qrRefreshTimer=setTimeout(refreshRideQr, (r.expiresInSeconds||120)*1000);
+  }catch(e){
+    status.textContent="Couldn't generate a code — check your connection.";
+  }
+}
+let qrRefreshTimer=null;
+
+// After confirming, poll for the driver's real camera scan to flip the
+// ride to 'ongoing' — there is no simulate button on the rider's side.
+let rideStartTimer=null;
+function stopWaitingForRideStart(){ if(rideStartTimer){ clearInterval(rideStartTimer); rideStartTimer=null; } clearTimeout(qrRefreshTimer); }
+function startWaitingForRideStart(){
+  stopWaitingForRideStart();
+  rideStartTimer=setInterval(async ()=>{
+    try{
+      const r=await api('/rides/current');
+      const match=(r.rides||[]).find(x=>x.ride_id===state.backendRideId);
+      if(match && match.status==='ongoing'){
+        stopWaitingForRideStart();
+        show('s-ride');
+        setTimeout(renderRideMap,50);
+      }
+    }catch(e){}
+  }, 2500);
+}
+
+function renderRideMap(){
   if(state.current){state.current.status='ongoing'; saveUser();}
-  show('s-ride');
   const bar=document.getElementById('ride-bar'); const status=document.getElementById('ride-status');
   let p=0;
   const t=setInterval(()=>{
@@ -879,9 +965,10 @@ document.getElementById('scan-start').onclick = () => {
     m2.fitBounds(line.getBounds(),{padding:[20,20]});
     setTimeout(()=>m2.invalidateSize(),200);
   },100);
-};
+}
 
 document.getElementById('end-ride').onclick = async () => {
+  stopWaitingForRideStart();
   if(state.backendRideId){ try{ await api(`/rides/${state.backendRideId}/end`,{method:'POST'}); }catch(e){} }
   document.getElementById('sum-fare').textContent = `₹${state.fare}`;
   const marketRate = state.autoFare||Math.round(state.fare/0.9);
@@ -945,6 +1032,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 document.getElementById('nav-rides').onclick=()=>{ setNav('nav-rides'); renderRides(); show('s-rides');};
 document.getElementById('r-back').onclick=()=>{ setNav('nav-home'); show('s-home'); };
 document.getElementById('cancel-ride').onclick=async ()=>{
+  stopWaitingForRideStart();
   const reason=document.getElementById('cancel-reason').value;
   if(state.backendRideId){ try{ await api(`/rides/${state.backendRideId}/cancel`,{method:'POST', body:JSON.stringify({reason})}); }catch(e){} }
   if(state.current){state.rides.unshift({...state.current,status:'cancelled',reason,when:new Date().toLocaleString()}); state.current=null;}
@@ -1000,7 +1088,7 @@ async function pollPending(){
   const list=document.getElementById('req-list');
   let requests=[];
   try{ const r=await api('/rides/pending'); requests=r.requests||[]; }
-  catch(e){ list.innerHTML='<p class="muted" style="margin:0;">Can\'t reach the backend — retrying…</p>'; return; }
+  catch(e){ list.innerHTML='<p class="muted" style="margin:0;">Can\'t connect right now — retrying…</p>'; return; }
   list.innerHTML='';
   if(!requests.length){ list.innerHTML='<p class="muted" style="margin:0;">No ride requests right now.</p>'; return; }
   requests.forEach(req=>{
@@ -1013,13 +1101,19 @@ async function pollPending(){
       try{
         const r=await api(`/rides/${req.request_id}/accept`,{method:'POST'});
         state.pickupRideId=r.rideId;
-        state.pickupRider={name:req.rider_name, branch:req.rider_branch||'', spot:req.drop_label, km:r.distanceKm, fare:r.fare};
+        state.pickupCoords=[r.pickupLat, r.pickupLng];
+        const riderPhone=r.rider && r.rider.phone ? r.rider.phone : '';
+        state.pickupRider={name:r.rider.name, branch:r.rider.branch||'', spot:req.drop_label, km:r.distanceKm, fare:r.fare, phone:riderPhone};
+        const phoneLine = riderPhone ? `<a href="tel:${riderPhone}" style="color:var(--good); text-decoration:none;">📞 ${riderPhone}</a>` : '';
         document.getElementById('pickup-rider-card').innerHTML =
-          `<div class="driverrow"><div class="avatar">${req.rider_name[0]}</div><div><strong>${req.rider_name}</strong><div class="muted" style="font-size:0.85rem;">Heading to ${req.drop_label||'—'} · saved to database ✓</div></div></div>
-           <div class="rowbetween" style="margin-top:10px;"><span class="muted">Fare</span><strong>₹${r.fare}</strong></div>`;
+          `<div class="driverrow"><div class="avatar">${r.rider.name[0]}</div><div><strong>${r.rider.name}</strong><div class="muted" style="font-size:0.85rem;">Heading to ${req.drop_label||'—'}</div></div></div>
+           <div class="rowbetween" style="margin-top:10px;"><span class="muted">Fare</span><strong>₹${r.fare}</strong></div>
+           <div class="rowbetween" style="margin-top:6px;"><span class="muted">Contact</span>${phoneLine}</div>`;
         document.getElementById('dr-progress-wrap').style.display='none';
-        document.getElementById('dr-scan').style.display='block';
+        document.getElementById('dr-scan-wrap').style.display='block';
         show('s-driver-ride');
+        setTimeout(renderDriverPickupMap,50);
+        startQrScanner();
       }catch(e){
         alert('Could not accept: '+e.message+' — someone else may have taken it.');
         pollPending();
@@ -1029,19 +1123,81 @@ async function pollPending(){
   });
 }
 
-document.getElementById('dr-scan').onclick=()=>{
-  document.getElementById('dr-progress-wrap').style.display='block';
-  document.getElementById('dr-scan').style.display='none';
-  const bar=document.getElementById('dr-bar'); let p=0;
-  const t=setInterval(()=>{ p+=10; bar.style.width=Math.min(p,100)+'%';
-    if(p>=100){clearInterval(t); document.getElementById('dr-status').textContent='Arrived at destination…';}
-  },250);
+function renderDriverPickupMap(){
+  const el=document.getElementById('map-driver-pickup');
+  if(window.driverPickupMap){ window.driverPickupMap.remove(); window.driverPickupMap=null; }
+  const pickup=state.pickupCoords || TRINITY;
+  const m=L.map(el,{zoomControl:false,dragging:false}).setView(pickup,15);
+  window.driverPickupMap=m;
+  addTilesWithFallback(m,'map-driver-pickup');
+  dot(pickup,'#E4572E','Rider pickup').addTo(m);
+  setTimeout(()=>m.invalidateSize(),200);
+}
+
+// ---- Real camera-based QR scanning (jsQR), not a simulate button ----
+let qrStream=null, qrScanLoop=null;
+async function startQrScanner(){
+  const video=document.getElementById('dr-video'), canvas=document.getElementById('dr-canvas');
+  const status=document.getElementById('dr-scan-status');
+  const ctx=canvas.getContext('2d', {willReadFrequently:true});
+  status.textContent='Starting camera…';
+  if(location.protocol==='file:'){
+    status.textContent='Camera access needs the page opened over https:// (or localhost) — it will not start from a local file.';
+    return;
+  }
+  try{
+    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+  }catch(e){
+    status.textContent='Camera permission denied or unavailable. Allow camera access and try again.';
+    return;
+  }
+  video.srcObject=qrStream;
+  await video.play();
+  status.textContent='Point the camera at the rider\u2019s QR code…';
+  function tick(){
+    if(video.readyState===video.HAVE_ENOUGH_DATA){
+      canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+      const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code=jsQR(img.data,img.width,img.height);
+      if(code && code.data){ onQrDecoded(code.data); return; }
+    }
+    qrScanLoop=requestAnimationFrame(tick);
+  }
+  qrScanLoop=requestAnimationFrame(tick);
+}
+function stopQrScanner(){
+  if(qrScanLoop) cancelAnimationFrame(qrScanLoop);
+  qrScanLoop=null;
+  if(qrStream){ qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
+}
+async function onQrDecoded(token){
+  stopQrScanner();
+  const status=document.getElementById('dr-scan-status');
+  status.textContent='Code found — starting ride…';
+  try{
+    await api('/qr/scan',{method:'POST', body:JSON.stringify({token, ride_id:state.pickupRideId})});
+    document.getElementById('dr-scan-wrap').style.display='none';
+    document.getElementById('dr-progress-wrap').style.display='block';
+    const bar=document.getElementById('dr-bar'); let p=0;
+    const t=setInterval(()=>{ p+=8; bar.style.width=Math.min(p,100)+'%';
+      if(p>=100){clearInterval(t); document.getElementById('dr-status').textContent='Arriving at destination…';}
+    },250);
+  }catch(e){
+    status.textContent='That code didn\u2019t work ('+e.message+'). Try scanning again.';
+    setTimeout(startQrScanner, 1500);
+  }
+}
+document.getElementById('dr-scan-cancel').onclick=()=>{
+  stopQrScanner();
+  show('s-driver');
 };
+
 document.getElementById('dr-end').onclick=async ()=>{
   const r=state.pickupRider;
   if(state.pickupRideId){ try{ await api(`/rides/${state.pickupRideId}/end`,{method:'POST'}); }catch(e){} }
   state.driverRides+=1; state.driverEarnings+=r.fare; saveUser();
-  document.getElementById('dr-scan').style.display='block';
+  document.getElementById('dr-scan-wrap').style.display='block';
   if(state.online){ reqTimer=setInterval(pollPending,4000); }
   renderVehicleUI();
   show('s-driver');
