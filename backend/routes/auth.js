@@ -109,15 +109,27 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: `Registration is open to @${process.env.COLLEGE_EMAIL_DOMAIN} addresses only.` });
     }
 
-    const [existing] = await pool.query(
-      'SELECT id, is_verified FROM users WHERE college_email = ? OR id_card_number = ?',
-      [college_email, id_card_number]
-    );
+    // Checked separately — lumping "email OR id_card_number" together used to
+    // misreport an ID-card collision as "this email already exists, log in",
+    // which sent people to a login screen for an email that was never
+    // actually registered.
+    const [byEmail] = await pool.query('SELECT id, is_verified FROM users WHERE college_email = ?', [college_email]);
+    const [byId] = await pool.query('SELECT id, is_verified FROM users WHERE id_card_number = ?', [id_card_number]);
 
+    if (byId.length > 0 && (byEmail.length === 0 || byEmail[0].id !== byId[0].id)) {
+      // The ID card number belongs to a different account than this email —
+      // never tell the person to "log in", since this email has no account.
+      return res.status(409).json({
+        error: 'This ID card number is already registered to a different account. Check for a typo, or contact support if you believe this is an error.',
+        conflict_field: 'id_card_number',
+      });
+    }
+
+    const existing = byEmail;
     let userId;
     if (existing.length > 0) {
       if (existing[0].is_verified) {
-        return res.status(409).json({ error: 'An account with this email or ID card number already exists. Log in instead.' });
+        return res.status(409).json({ error: 'An account with this email already exists. Log in instead.', conflict_field: 'email' });
       }
       const password_hash = await bcrypt.hash(password, 10);
       await pool.query(
