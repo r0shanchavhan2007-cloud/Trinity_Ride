@@ -203,7 +203,24 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
     <label>ID card number</label>
     <input id="v-id" placeholder="e.g. TACE2026CS118">
     <label>Branch &amp; year</label>
-    <input id="v-branch" placeholder="e.g. Computer Engineering, TY">
+    <div class="vehrow" style="margin-top:0;">
+      <select id="v-branch" style="flex:1.4;">
+        <option value="" disabled selected>Branch</option>
+        <option>Computer Engineering</option>
+        <option>Information Technology</option>
+        <option>Mechanical Engineering</option>
+        <option>Civil Engineering</option>
+        <option>E&amp;TC Engineering</option>
+        <option>Electrical Engineering</option>
+      </select>
+      <select id="v-year" style="flex:1;">
+        <option value="" disabled selected>Year</option>
+        <option>FY</option>
+        <option>SY</option>
+        <option>TY</option>
+        <option>BE</option>
+      </select>
+    </div>
     <label>Phone number</label>
     <input id="v-phone" inputmode="tel" placeholder="e.g. 9876543210">
     <label>Password</label>
@@ -421,7 +438,7 @@ body:has(#bottomnav[style*="flex"]) #app, body.logged-in{padding-bottom:0;}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const TRINITY = [18.4400, 73.8850]; // Yewalewadi, Pune — approx campus location
 const state = { user:null, dest:null, distanceKm:0, fare:0, driver:null, ridesTaken:0, totalSaved:0, rides:[], current:null, vehicle:null, online:false, driverEarnings:0, driverRides:0, vehType:'bike' };
@@ -458,7 +475,9 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
 
 // ---- Real backend connection ----
 // Change this if your backend runs somewhere other than localhost:4000.
-const API_BASE='https://trinity-ride.onrender.com/api';
+const API_BASE = (location.hostname==='localhost' || location.hostname==='127.0.0.1')
+  ? 'http://localhost:4000/api'
+  : 'https://trinity-ride.onrender.com/api';
 async function api(path, options={}){
   const headers={'Content-Type':'application/json', ...(options.headers||{})};
   if(state.token) headers['Authorization']='Bearer '+state.token;
@@ -482,11 +501,12 @@ document.getElementById('v-submit').onclick = async () => {
   const full_name=document.getElementById('v-name').value.trim();
   const college_email=document.getElementById('v-email').value.trim();
   const id_card_number=document.getElementById('v-id').value.trim();
-  const branch=document.getElementById('v-branch').value.trim();
+  const branch=document.getElementById('v-branch').value;
+  const year_of_study=document.getElementById('v-year').value;
   const phone=document.getElementById('v-phone').value.trim();
   const password=document.getElementById('v-pass').value;
-  if(!full_name||!college_email||!id_card_number||!phone||!password){
-    errEl.textContent='Please fill in name, email, phone number, ID card number and a password.'; errEl.style.display='block'; return;
+  if(!full_name||!college_email||!id_card_number||!phone||!password||!branch||!year_of_study){
+    errEl.textContent='Please fill in all fields, including branch and year.'; errEl.style.display='block'; return;
   }
   if(verifyVia==='phone'){
     errEl.textContent='Phone verification isn\u2019t available just yet \u2014 please choose Email for now.';
@@ -495,7 +515,7 @@ document.getElementById('v-submit').onclick = async () => {
   }
   statusEl.textContent='Creating your account…';
   try{
-    await api('/auth/register', {method:'POST', body:JSON.stringify({full_name,college_email,id_card_number,branch,phone,password,verify_via:verifyVia})});
+    await api('/auth/register', {method:'POST', body:JSON.stringify({full_name,college_email,id_card_number,branch,year_of_study,phone,password,verify_via:verifyVia})});
     pendingSignup={college_email};
     statusEl.textContent='';
     show('s-otp');
@@ -525,7 +545,7 @@ document.getElementById('otp-submit').onclick = async () => {
     state.user={
       name:r.user.full_name, email:r.user.college_email,
       id:document.getElementById('v-id').value.trim(),
-      branch:document.getElementById('v-branch').value.trim(),
+      branch:document.getElementById('v-branch').value+', '+document.getElementById('v-year').value,
       dbId:r.user.id
     };
     enterApp();
@@ -621,7 +641,7 @@ document.getElementById('p-logout').onclick=()=>{
   state.user=null; state.token=null; state.ridesTaken=0; state.totalSaved=0;
   document.getElementById('bottomnav').style.display='none'; document.body.classList.remove('logged-in'); state.rides=[]; state.current=null; state.vehicle=null; state.online=false;
   document.getElementById('v-name').value=''; document.getElementById('v-email').value='';
-  document.getElementById('v-id').value=''; document.getElementById('v-branch').value=''; document.getElementById('v-pass').value='';
+  document.getElementById('v-id').value=''; document.getElementById('v-branch').selectedIndex=0; document.getElementById('v-year').selectedIndex=0; document.getElementById('v-pass').value='';
   show('s-verify');
 };
 
